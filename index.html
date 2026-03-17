@@ -1,822 +1,170 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculadora Penal</title>
-
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: #dcdcdc;
-      color: #111;
-    }
-
-    /* TOPO */
-    .topbar {
-      background: linear-gradient(180deg, #ff3b6b 0%, #1b1b1b 100%);
-      padding: 20px 30px 26px;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 120px 90px;
-      gap: 28px;
-      align-items: end;
-    }
-
-    .field-group label {
-      display: block;
-      color: #fff;
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .field-group input {
-      width: 100%;
-      height: 40px;
-      border: none;
-      outline: none;
-      border-radius: 4px;
-      padding: 0 14px;
-      font-size: 16px;
-      background: #fff;
-      color: #333;
-    }
-
-    .top-btn {
-      height: 58px;
-      border: 1px solid #111;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 18px;
-      color: #fff;
-      transition: .2s;
-    }
-
-    .top-btn:hover {
-      transform: translateY(-1px);
-      opacity: .95;
-    }
-
-    .btn-book {
-      background: #384056;
-    }
-
-    .btn-tutorial {
-      background: #ff3b6b;
-    }
-
-    /* LAYOUT */
-    .main {
-      display: grid;
-      grid-template-columns: 1fr 460px;
-      min-height: calc(100vh - 104px);
-    }
-
-    /* AREA ESQUERDA */
-    .content-left {
-      background: #dcdcdc;
-      padding: 14px 12px;
-      overflow-y: auto;
-    }
-
-    .crimes-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .crime-column {
-      background: #e3e3e3;
-      border: 1px solid #cfcfcf;
-      padding: 10px;
-      min-height: 500px;
-    }
-
-    .category {
-      margin-bottom: 18px;
-      border-bottom: 1px solid #bdbdbd;
-      padding-bottom: 14px;
-    }
-
-    .category-title {
-      background: #e8e8ee;
-      border-radius: 20px;
-      text-align: center;
-      padding: 10px 12px;
-      font-size: 18px;
-      margin-bottom: 14px;
-    }
-
-    .crime-item {
-      display: grid;
-      grid-template-columns: 20px 1fr 28px;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 16px;
-    }
-
-    .crime-item input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
-
-    .info-btn {
-      border: none;
-      background: #ff4b72;
-      color: white;
-      width: 28px;
-      height: 28px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    /* LADO DIREITO */
-    .sidebar {
-      background: linear-gradient(135deg, #1a1824 0%, #20151d 100%);
-      color: white;
-      padding: 26px 16px;
-      border-left: 2px solid rgba(255,255,255,.06);
-    }
-
-    .calc-title {
-      text-align: center;
-      font-size: 30px;
-      font-style: italic;
-      font-weight: 300;
-      margin-bottom: 22px;
-      letter-spacing: .5px;
-    }
-
-    .result-label {
-      text-align: center;
-      font-size: 20px;
-      margin: 18px 0 10px;
-    }
-
-    .result-input {
-      width: 100%;
-      height: 36px;
-      border: none;
-      border-radius: 3px;
-      background: #efefef;
-      color: #111;
-      padding: 0 10px;
-      font-size: 17px;
-      outline: none;
-    }
-
-    .clear-btn {
-      margin-top: 24px;
-      width: 100%;
-      border: none;
-      background: #d7113a;
-      color: white;
-      height: 58px;
-      border-radius: 3px;
-      font-size: 20px;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .clear-btn:hover {
-      background: #b80f31;
-    }
-
-    .box {
-      margin-top: 18px;
-      padding-top: 14px;
-      border-top: 1px solid rgba(255,255,255,.15);
-    }
-
-    .box h3 {
-      text-align: center;
-      margin-bottom: 14px;
-      font-size: 18px;
-    }
-
-    .observacoes {
-      font-size: 13px;
-      line-height: 1.5;
-      padding-left: 16px;
-    }
-
-    .selected-crimes {
-      width: 100%;
-      height: 180px;
-      border: none;
-      resize: none;
-      border-radius: 3px;
-      background: #efefef;
-      padding: 10px;
-      font-size: 15px;
-      outline: none;
-    }
-
-    @media (max-width: 1200px) {
-      .main {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        border-left: none;
-        border-top: 2px solid rgba(255,255,255,.06);
-      }
-
-      .crimes-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .topbar {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
-</head>
-<body>
-
-  <header class="topbar">
-    <div class="field-group">
-      <label>Nome do Preso</label>
-      <input type="text" placeholder="Nome do Preso..." id="nomePreso">
-    </div>
-
-    <div class="field-group">
-      <label>RG do Preso</label>
-      <input type="text" placeholder="RG do Preso..." id="rgPreso">
-    </div>
-
-    <div class="field-group">
-      <label>RG do Advogado</label>
-      <input type="text" placeholder="RG do Advogado..." id="rgAdvogado">
-    </div>
-
-    <button class="top-btn btn-book">📖</button>
-    <button class="top-btn btn-tutorial">▷ ▷ ▷<br>Tutorial</button>
-  </header>
-
-  <main class="main">
-    <section class="content-left">
-      <div class="crimes-grid">
-
-        <div class="crime-column">
-          <div class="category">
-            <div class="category-title">CONTRA A VIDA:</div>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="12 meses" data-multa="5000" data-nome="1.1 - Homicídio">
-              <span>1.1 - Homicídio</span>
-              <button class="info-btn">?</button>
-            </label>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="6 meses" data-multa="2500" data-nome="1.2 - Lesão corporal">
-              <span>1.2 - Lesão corporal</span>
-              <button class="info-btn">?</button>
-            </label>
-          </div>
-
-          <div class="category">
-            <div class="category-title">CONTRA O PATRIMÔNIO:</div>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="5 meses" data-multa="1200" data-nome="5.1 - Furto">
-              <span>5.1 - Furto</span>
-              <button class="info-btn">?</button>
-            </label>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="7 meses" data-multa="1800" data-nome="5.2 - Roubo">
-              <span>5.2 - Roubo</span>
-              <button class="info-btn">?</button>
-            </label>
-          </div>
-        </div>
-
-        <div class="crime-column">
-          <div class="category">
-            <div class="category-title">NARCOTRÁFICO:</div>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="4 meses" data-multa="1000" data-nome="6.3 - Posse de Drogas">
-              <span>6.3 - Posse de Drogas</span>
-              <button class="info-btn">?</button>
-            </label>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="9 meses" data-multa="4500" data-nome="6.4 - Tráfico de drogas">
-              <span>6.4 - Tráfico de drogas</span>
-              <button class="info-btn">?</button>
-            </label>
-          </div>
-
-          <div class="category">
-            <div class="category-title">CRIMES CONTRA A HONRA:</div>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="2 meses" data-multa="500" data-nome="8.1 - Falsidade Ideológica">
-              <span>8.1 - Falsidade Ideológica</span>
-              <button class="info-btn">?</button>
-            </label>
-          </div>
-        </div>
-
-        <div class="crime-column">
-          <div class="category">
-            <div class="category-title">DAS VIOLAÇÕES NO TRÂNSITO (CTB):</div>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="3 meses" data-multa="700" data-nome="11.1 - Tentativa de Fuga">
-              <span>11.1 - Tentativa de Fuga</span>
-              <button class="info-btn">?</button>
-            </label>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="5 meses" data-multa="1500" data-nome="11.15 - Conduzir sem habilitação">
-              <span>11.15 - Conduzir sem habilitação</span>
-              <button class="info-btn">?</button>
-            </label>
-          </div>
-
-          <div class="category">
-            <div class="category-title">AGRAVANTES:</div>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="1 mês" data-multa="300" data-nome="14.1 - Desacato a autoridade">
-              <span>14.1 - Desacato a autoridade</span>
-              <button class="info-btn">?</button>
-            </label>
-
-            <label class="crime-item">
-              <input type="checkbox" class="crime" data-pena="2 meses" data-multa="500" data-nome="14.2 - Resistência à Prisão">
-              <span>14.2 - Resistência à Prisão</span>
-              <button class="info-btn">?</button>
-            </label>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <aside class="sidebar">
-      <h1 class="calc-title">CALCULADORA</h1>
-
-      <div class="result-label">⚖️ PENA:</div>
-      <input class="result-input" id="penaTotal" readonly>
-
-      <div class="result-label">💸 MULTA:</div>
-      <input class="result-input" id="multaTotal" readonly>
-
-      <div class="result-label">💰 FIANÇA:</div>
-      <input class="result-input" id="fiancaTotal" readonly>
-
-      <button class="clear-btn" onclick="limparTudo()">🗑 LIMPAR</button>
-
-      <div class="box">
-        <h3>OBSERVAÇÕES:</h3>
-        <ul class="observacoes">
-          <li>De acordo com definição da prefeitura, lei de miranda não existe;</li>
-          <li>Da mesma forma, é direito do cidadão se manter calado a partir da voz de prisão;</li>
-          <li>Caso de fiança, não se deve cobrar a multa;</li>
-          <li>Os atenuantes são acumulativos conforme fala do advogado.</li>
-        </ul>
-      </div>
-
-      <div class="box">
-        <h3>CRIMES (ARTIGOS SELECIONADOS):</h3>
-        <textarea class="selected-crimes" id="listaCrimes" readonly></textarea>
-      </div>
-    </aside>
-  </main>
-
-  <script>
-    const crimes = document.querySelectorAll('.crime');
-    const penaTotal = document.getElementById('penaTotal');
-    const multaTotal = document.getElementById('multaTotal');
-    const fiancaTotal = document.getElementById('fiancaTotal');
-    const listaCrimes = document.getElementById('listaCrimes');
-
-    function atualizarCalculadora() {
-      let totalMeses = 0;
-      let totalMulta = 0;
-      let crimesSelecionados = [];
-
-      crimes.forEach(crime => {
-        if (crime.checked) {
-          const penaTexto = crime.dataset.pena;
-          const multa = parseInt(crime.dataset.multa) || 0;
-          const nome = crime.dataset.nome;
-
-          const meses = parseInt(penaTexto) || 0;
-
-          totalMeses += meses;
-          totalMulta += multa;
-          crimesSelecionados.push(nome);
-        }
-      });
-
-      penaTotal.value = totalMeses + (totalMeses === 1 ? ' mês' : ' meses');
-      multaTotal.value = 'R$ ' + totalMulta.toLocaleString('pt-BR');
-      fiancaTotal.value = 'R$ 0';
-      listaCrimes.value = crimesSelecionados.join('\n');
-    }
-
-    function limparTudo() {
-      crimes.forEach(crime => crime.checked = false);
-      document.getElementById('nomePreso').value = '';
-      document.getElementById('rgPreso').value = '';
-      document.getElementById('rgAdvogado').value = '';
-      penaTotal.value = '';
-      multaTotal.value = '';
-      fiancaTotal.value = '';
-      listaCrimes.value = '';
-    }
-
-    crimes.forEach(crime => {
-      crime.addEventListener('change', atualizarCalculadora);
-    });
-  </script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Calculadora Penal</title>
-
 <style>
-body {
+* {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #1c1c2b, #2b1c2b);
+}
+
+/* FUNDO */
+body {
+    background: #dcdcdc;
+}
+
+/* TOPO */
+.topbar {
+    background: linear-gradient(180deg, #ff2f5b 0%, #1b1b1b 100%);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto auto;
+    gap: 20px;
+    align-items: end;
+}
+
+.field-group label {
     color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    font-weight: bold;
+    margin-bottom: 6px;
+    display: block;
 }
 
-.container {
-    width: 400px;
-    text-align: center;
-}
-
-h1 {
-    font-style: italic;
-    font-weight: 300;
-    margin-bottom: 30px;
-}
-
-.label {
-    margin-top: 15px;
-    font-size: 18px;
-    text-align: left;
-}
-
-.input {
+.field-group input {
     width: 100%;
-    padding: 12px;
-    border-radius: 6px;
+    height: 38px;
+    border-radius: 4px;
     border: none;
-    margin-top: 5px;
-    font-size: 16px;
-    background: #e5e5e5;
+    padding: 0 10px;
 }
 
-.button {
-    margin-top: 25px;
-    width: 100%;
-    padding: 15px;
-    background: #d4142a;
+/* BOTÕES TOPO */
+.top-btn {
+    height: 50px;
+    border-radius: 4px;
     border: none;
-    border-radius: 6px;
-    color: white;
-    font-size: 18px;
     cursor: pointer;
-    transition: 0.2s;
+    color: white;
 }
 
-.button:hover {
-    background: #a10f20;
+.btn-book {
+    background: #3b4257;
+}
+
+.btn-tutorial {
+    background: #ff2f5b;
+}
+
+/* LAYOUT */
+.main {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+}
+
+/* ESQUERDA */
+.content-left {
+    padding: 10px;
+}
+
+.crimes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.crime-column {
+    background: #e5e5e5;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* TITULO DAS SEÇÕES */
+.category-title {
+    background: #ddd;
+    padding: 8px;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+/* ITEM CRIME */
+.crime-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.crime-item span {
+    flex: 1;
+    margin-left: 6px;
+}
+
+/* BOTÃO ? */
+.info-btn {
+    background: #ff2f5b;
+    border: none;
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* SIDEBAR DIREITA */
+.sidebar {
+    background: linear-gradient(135deg, #1a1824, #20151d);
+    color: white;
+    padding: 20px;
+}
+
+/* TITULO */
+.calc-title {
+    text-align: center;
+    font-size: 26px;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+/* INPUTS RESULTADO */
+.result-input {
+    width: 100%;
+    height: 34px;
+    margin-bottom: 15px;
+    border-radius: 3px;
+    border: none;
+    background: #eee;
+    padding: 0 10px;
+}
+
+/* BOTÃO LIMPAR */
+.clear-btn {
+    width: 100%;
+    height: 50px;
+    background: #d7113a;
+    border: none;
+    color: white;
+    font-size: 18px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.clear-btn:hover {
+    background: #b50d2f;
+}
+
+/* BOX */
+.box {
+    margin-top: 20px;
+    border-top: 1px solid #555;
+    padding-top: 10px;
+}
+
+.selected-crimes {
+    width: 100%;
+    height: 150px;
+    border: none;
+    border-radius: 3px;
+    padding: 10px;
 }
 </style>
-
-</head>
-<body>
-
-<div class="container">
-    <h1>CALCULADORA</h1>
-
-    <div class="label">⚖️ PENA:</div>
-    <input type="text" class="input" id="pena">
-
-    <div class="label">💸 MULTA:</div>
-    <input type="text" class="input" id="multa">
-
-    <div class="label">💰 FIANÇA:</div>
-    <input type="text" class="input" id="fianca">
-
-    <button class="button" onclick="limpar()">🗑 LIMPAR</button>
-</div>
-
-<script>
-function limpar() {
-    document.getElementById("pena").value = "";
-    document.getElementById("multa").value = "";
-    document.getElementById("fianca").value = "";
-}
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <title>Calculadora Penal - Alvorada City</title>
-  <style>
-    /* ====== RESET E FONTE ====== */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; }
-
-    /* ====== HEADER ====== */
-    header {
-      background: #020617;
-      padding: 20px;
-      text-align: center;
-      border-bottom: 2px solid #22c55e;
-    }
-    header h1 {
-      color: #22c55e;
-      font-size: 28px;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px #22c55e;
-    }
-    header img {
-      max-width: 300px;
-      margin-bottom: 5px;
-    }
-    header p { font-size: 12px; color: #94a3b8; }
-
-    /* ====== CONTAINER PRINCIPAL ====== */
-    .container { max-width: 900px; margin: auto; padding: 20px; }
-
-    /* ====== INPUTS ====== */
-    .input-row { display: flex; gap: 2%; margin-bottom: 15px; }
-    .input-row input {
-      flex: 1;
-      padding: 8px;
-      border-radius: 6px;
-      border: none;
-    }
-
-    /* ====== CRIMES ====== */
-    .crime { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
-    .crime h3 { color: #22c55e; margin-top: 20px; }
-
-    /* ====== BOTOES ====== */
-    button {
-      background: #22c55e;
-      border: none;
-      padding: 10px 15px;
-      color: #000;
-      font-weight: bold;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    button + button { margin-left: 10px; }
-
-    /* ====== RESULTADO ====== */
-    .resultado {
-      margin-top: 20px;
-      background: #020617;
-      padding: 15px;
-      border-radius: 10px;
-    }
-
-    textarea {
-      width: 100%;
-      margin-top: 10px;
-      padding: 10px;
-      height: 150px;
-      resize: none;
-      border-radius: 6px;
-      border: none;
-      background: #1e293b;
-      color: #fff;
-    }
-  </style>
-</head>
-<body>
-
-<header>
-  <h1>Calculadora Penal - Alvorada City</h1>
-  <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/300x100?text=LOGO';">
-  <p>Sistema MDT • Polícia RP</p>
-</header>
-
-<div class="container">
-
-  <!-- Inputs do preso -->
-  <div class="input-row">
-    <input id="nome" placeholder="Nome do preso">
-    <input id="rg" placeholder="RG">
-  </div>
-
-  <!-- Seção de crimes -->
-  <div id="crimes"></div>
-
-  <!-- Botoes -->
-  <button type="button" onclick="calcular()">Calcular Pena</button>
-  <button type="button" onclick="copiarPrisao()">Copiar Prisão</button>
-
-  <!-- Resultado -->
-  <div class="resultado" id="resultado">
-    <p>Tempo: 0 meses</p>
-    <p>Multa: R$ 0</p>
-  </div>
-
-  <!-- Fallback para copiar -->
-  <textarea id="saida" placeholder="O texto da prisão vai aparecer aqui caso o copiar falhe..."></textarea>
-
-</div>
-
-<script>
-/* ===================== DADOS DOS CRIMES ===================== */
-const categorias = [
-  {
-    titulo: "CRIMES CONTRA A ADMINISTRAÇÃO",
-    crimes: [
-      {nome: "Falsa comunicação de crime", tempo: 10, multa: 1500},
-      {nome: "Desobediência", tempo: 3, multa: 1000},
-      {nome: "Desacato", tempo: 3, multa: 1000},
-      {nome: "Resistência a prisão", tempo: 15, multa: 3000},
-      {nome: "Obstrução da justiça", tempo: 5, multa: 1000},
-      {nome: "Falso testemunho", tempo: 15, multa: 5000},
-      {nome: "Perjúrio", tempo: 5, multa: 1000},
-      {nome: "Quebra de sigilo administrativo", tempo: 30, multa: 25000},
-      {nome: "Quebra de contrato administrativo", tempo: 30, multa: 10000},
-      {nome: "Incitação ao crime", tempo: 5, multa: 2000},
-      {nome: "Suborno", tempo: 35, multa: 15000},
-      {nome: "Falsificação ideológica", tempo: 3, multa: 500}
-    ]
-  },
-  {
-    titulo: "CRIMES CONTRA A VIDA",
-    crimes: [
-      {nome: "Tentativa de homicídio", tempo: 5, multa: 2000},
-      {nome: "Homicídio culposo", tempo: 3, multa: 1000},
-      {nome: "Homicídio qualificado", tempo: 10, multa: 2000},
-      {nome: "Homicídio doloso", tempo: 10, multa: 2500},
-      {nome: "Sequestro", tempo: 10, multa: 2000},
-      {nome: "Lesão corporal", tempo: 3, multa: 500},
-      {nome: "Maria da penha", tempo: 10, multa: 1000}
-    ]
-  },
-  {
-    titulo: "CRIMES CONTRA O PATRIMÔNIO",
-    crimes: [
-      {nome: "Roubo a viatura", tempo: 10, multa: 10000},
-      {nome: "Invasão de propriedade", tempo: 5, multa: 1000},
-      {nome: "Roubo a propriedade", tempo: 5, multa: 1000},
-      {nome: "Dano a patrimônio público e privado", tempo: 5, multa: 500},
-      {nome: "Extorsão", tempo: 100, multa: 0},
-      {nome: "Furto", tempo: 5, multa: 500},
-      {nome: "Roubo a ATM", tempo: 10, multa: 2000},
-      {nome: "Roubo a caixa registradora", tempo: 5, multa: 1000},
-      {nome: "Roubo de pertences", tempo: 3, multa: 500},
-      {nome: "Roubo de carro", tempo: 5, multa: 2000},
-      {nome: "Roubo a Ammunation", tempo: 10, multa: 2000},
-      {nome: "Roubo a Barbearia", tempo: 10, multa: 2000},
-      {nome: "Roubo a Loja", tempo: 10, multa: 2000},
-      {nome: "Roubo Banco Central", tempo: 30, multa: 5000},
-      {nome: "Roubo Banco Paleto", tempo: 30, multa: 5000},
-      {nome: "Roubo Fleeca", tempo: 30, multa: 5000},
-      {nome: "Roubo a Joalheria", tempo: 10, multa: 2000}
-    ]
-  },
-  {
-    titulo: "CRIMES DIVERSOS",
-    crimes: [
-      {nome: "Ocultação facial", tempo: 5, multa: 500},
-      {nome: "Vandalismo", tempo: 5, multa: 1000},
-      {nome: "Tentativa de fuga", tempo: 10, multa: 2000},
-      {nome: "Calúnia e difamação", tempo: 5, multa: 1500},
-      {nome: "Assédio moral", tempo: 5, multa: 1000},
-      {nome: "Omissão de socorro", tempo: 5, multa: 1000},
-      {nome: "Ameaça por autoridade", tempo: 40, multa: 30000},
-      {nome: "Estelionato", tempo: 35, multa: 10000},
-      {nome: "Formação de quadrilha", tempo: 5, multa: 1000},
-      {nome: "Contrabando", tempo: 5, multa: 1000},
-      {nome: "Posse de material ilícito", tempo: 15, multa: 8000},
-      {nome: "Tráfico de drogas", tempo: 8, multa: 1500},
-      {nome: "Posse de dinheiro sujo", tempo: 3, multa: 500},
-      {nome: "Tráfico de armas leves", tempo: 10, multa: 2000},
-      {nome: "Tráfico de armas médias", tempo: 15, multa: 4000},
-      {nome: "Tráfico de armas pesadas", tempo: 20, multa: 10000},
-      {nome: "Ameaça", tempo: 3, multa: 500},
-      {nome: "Porte de armas leves", tempo: 5, multa: 200},
-      {nome: "Porte de armas médias", tempo: 8, multa: 4000},
-      {nome: "Porte de armas pesadas", tempo: 15, multa: 10000},
-      {nome: "Munição leve", tempo: 3, multa: 1000},
-      {nome: "Munição média", tempo: 5, multa: 2000},
-      {nome: "Munição pesada", tempo: 8, multa: 4000},
-      {nome: "Tráfico munição leve", tempo: 5, multa: 2000},
-      {nome: "Tráfico munição média", tempo: 8, multa: 4000},
-      {nome: "Tráfico munição pesada", tempo: 12, multa: 5000},
-      {nome: "Corrida ilegal", tempo: 10, multa: 2000},
-      {nome: "Invasão departamento policial", tempo: 20, multa: 5000},
-      {nome: "Abandono de veículo", tempo: 1, multa: 1000},
-      {nome: "Roubo mergulhador", tempo: 10, multa: 3000},
-      {nome: "Aeronave sem rádio", tempo: 1, multa: 15000},
-      {nome: "Aeronave danificada", tempo: 1, multa: 15000}
-    ]
-  }
-];
-
-/* ===================== RENDER CRIMES ===================== */
-const container = document.getElementById("crimes");
-categorias.forEach((cat, catIndex) => {
-  const h3 = document.createElement("h3");
-  h3.textContent = cat.titulo;
-  container.appendChild(h3);
-
-  cat.crimes.forEach((crime, crimeIndex) => {
-    const numero = (catIndex + 1) + "." + (crimeIndex + 1);
-    const div = document.createElement("div");
-    div.className = "crime";
-    div.innerHTML = `
-      <span>${numero} - ${crime.nome}</span>
-      <input type="checkbox" data-tempo="${crime.tempo}" data-multa="${crime.multa}">
-    `;
-    container.appendChild(div);
-  });
-});
-
-/* ===================== FUNCOES ===================== */
-let crimesSelecionados = [];
-
-function calcular() {
-  let tempo = 0, multa = 0;
-  crimesSelecionados = [];
-
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.tempo);
-    multa += parseInt(el.dataset.multa);
-    crimesSelecionados.push(el.parentElement.querySelector('span').innerText);
-  });
-
-  document.getElementById('resultado').innerHTML = `
-    <p>Tempo: ${tempo} meses</p>
-    <p>Multa: R$ ${multa.toLocaleString()}</p>
-  `;
-}
-
-function copiarPrisao() {
-  calcular();
-
-  const nome = document.getElementById('nome').value.trim() || 'N/A';
-  const rg = document.getElementById('rg').value.trim() || 'N/A';
-  const listaCrimes = crimesSelecionados.map(c => '- ' + c).join('\n');
-
-  const texto = `\`\`\`md
-
-# INFORMAÇÕES DO PRESO:
-* NOME: ${nome}
-* RG: ${rg}
-
-# PENA TOTAL: ${document.querySelector('#resultado p').innerText.replace('Tempo: ', '')}
-# MULTA: R$ ${document.querySelector('#resultado p:nth-child(2)').innerText.replace('Multa: R$ ', '')}
-
-# CRIMES:
-CRIMES (ARTIGOS SELECIONADOS):
-${listaCrimes}
-
-\`\`\``;
-
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(texto).then(() => alert('Prisão copiada!'))
-      .catch(() => fallbackCopy(texto));
-  } else fallbackCopy(texto);
-}
-
-function fallbackCopy(texto) {
-  const textarea = document.getElementById('saida');
-  textarea.value = texto;
-  textarea.select();
-  document.execCommand('copy');
-  alert('Prisão copiada! (modo compatível)');
-}
-</script>
-
-</body>
-</html>
