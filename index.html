@@ -4,35 +4,46 @@
   <meta charset="UTF-8">
   <title>Calculadora Penal - Alvorada City</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #fff;
-      margin: 0;
-    }
+    /* ====== RESET E FONTE ====== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; }
 
+    /* ====== HEADER ====== */
     header {
       background: #020617;
       padding: 20px;
       text-align: center;
       border-bottom: 2px solid #22c55e;
     }
-
-    .container {
-      padding: 20px;
-      max-width: 900px;
-      margin: auto;
-    }
-
-    .crime {
-      display: flex;
-      justify-content: space-between;
-      background: #1e293b;
-      padding: 10px;
+    header h1 {
+      color: #22c55e;
+      font-size: 28px;
       margin-bottom: 10px;
-      border-radius: 8px;
+      text-shadow: 0 0 10px #22c55e;
+    }
+    header img {
+      max-width: 300px;
+      margin-bottom: 5px;
+    }
+    header p { font-size: 12px; color: #94a3b8; }
+
+    /* ====== CONTAINER PRINCIPAL ====== */
+    .container { max-width: 900px; margin: auto; padding: 20px; }
+
+    /* ====== INPUTS ====== */
+    .input-row { display: flex; gap: 2%; margin-bottom: 15px; }
+    .input-row input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: none;
     }
 
+    /* ====== CRIMES ====== */
+    .crime { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 10px; margin-bottom: 10px; border-radius: 8px; }
+    .crime h3 { color: #22c55e; margin-top: 20px; }
+
+    /* ====== BOTOES ====== */
     button {
       background: #22c55e;
       border: none;
@@ -42,7 +53,9 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    button + button { margin-left: 10px; }
 
+    /* ====== RESULTADO ====== */
     .resultado {
       margin-top: 20px;
       background: #020617;
@@ -58,43 +71,47 @@
       resize: none;
       border-radius: 6px;
       border: none;
+      background: #1e293b;
+      color: #fff;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1 style="color:#22c55e; font-size:28px; margin-bottom:10px; text-shadow:0 0 10px #22c55e;">
-    Calculadora Penal - Alvorada City
-  </h1>
-  <img src="logo.png" alt="Logo" style="max-width:300px;" onerror="this.src='https://via.placeholder.com/300x100?text=LOGO';">
-  <p style="font-size:12px; color:#94a3b8;">Sistema MDT • Polícia RP</p>
+  <h1>Calculadora Penal - Alvorada City</h1>
+  <img src="logo.png" alt="Logo" onerror="this.src='https://via.placeholder.com/300x100?text=LOGO';">
+  <p>Sistema MDT • Polícia RP</p>
 </header>
 
 <div class="container">
 
-<h2>Selecione os crimes:</h2>
+  <!-- Inputs do preso -->
+  <div class="input-row">
+    <input id="nome" placeholder="Nome do preso">
+    <input id="rg" placeholder="RG">
+  </div>
 
-<div style="margin-bottom:15px;">
-  <input id="nome" placeholder="Nome do preso" style="padding:8px; width:48%; margin-right:2%;">
-  <input id="rg" placeholder="RG" style="padding:8px; width:48%;">
-</div>
+  <!-- Seção de crimes -->
+  <div id="crimes"></div>
 
-<div id="crimes"></div>
+  <!-- Botoes -->
+  <button type="button" onclick="calcular()">Calcular Pena</button>
+  <button type="button" onclick="copiarPrisao()">Copiar Prisão</button>
 
-<button type="button" onclick="calcular()">Calcular Pena</button>
-<button type="button" onclick="copiarPrisao()" style="margin-left:10px;">Copiar Prisão</button>
+  <!-- Resultado -->
+  <div class="resultado" id="resultado">
+    <p>Tempo: 0 meses</p>
+    <p>Multa: R$ 0</p>
+  </div>
 
-<div class="resultado" id="resultado">
-  <p>Tempo: 0 meses</p>
-  <p>Multa: R$ 0</p>
-</div>
-
-<textarea id="saida" placeholder="O texto da prisão vai aparecer aqui caso o copiar falhe..."></textarea>
+  <!-- Fallback para copiar -->
+  <textarea id="saida" placeholder="O texto da prisão vai aparecer aqui caso o copiar falhe..."></textarea>
 
 </div>
 
 <script>
+/* ===================== DADOS DOS CRIMES ===================== */
 const categorias = [
   {
     titulo: "CRIMES CONTRA A ADMINISTRAÇÃO",
@@ -186,45 +203,42 @@ const categorias = [
   }
 ];
 
+/* ===================== RENDER CRIMES ===================== */
 const container = document.getElementById("crimes");
-
 categorias.forEach((cat, catIndex) => {
-  const titulo = document.createElement("h3");
-  titulo.textContent = cat.titulo;
-  titulo.style.color = "#22c55e";
-  container.appendChild(titulo);
+  const h3 = document.createElement("h3");
+  h3.textContent = cat.titulo;
+  container.appendChild(h3);
 
-  cat.crimes.forEach((c, crimeIndex) => {
-    const numero = (catIndex + 1) + '.' + (crimeIndex + 1);
-
+  cat.crimes.forEach((crime, crimeIndex) => {
+    const numero = (catIndex + 1) + "." + (crimeIndex + 1);
     const div = document.createElement("div");
     div.className = "crime";
-
-    div.innerHTML = '<span>' + numero + ' - ' + c.nome + '</span>' +
-                    '<input type="checkbox" data-tempo="' + c.tempo + '" data-multa="' + c.multa + '">';
-
+    div.innerHTML = `
+      <span>${numero} - ${crime.nome}</span>
+      <input type="checkbox" data-tempo="${crime.tempo}" data-multa="${crime.multa}">
+    `;
     container.appendChild(div);
   });
 });
 
+/* ===================== FUNCOES ===================== */
 let crimesSelecionados = [];
 
 function calcular() {
-  let tempo = 0;
-  let multa = 0;
+  let tempo = 0, multa = 0;
   crimesSelecionados = [];
 
   document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
     tempo += parseInt(el.dataset.tempo);
     multa += parseInt(el.dataset.multa);
-
-    const nomeCrime = el.parentElement.querySelector('span').innerText;
-    crimesSelecionados.push(nomeCrime);
+    crimesSelecionados.push(el.parentElement.querySelector('span').innerText);
   });
 
-  document.getElementById('resultado').innerHTML =
-    '<p>Tempo: ' + tempo + ' meses</p>' +
-    '<p>Multa: R$ ' + multa.toLocaleString() + '</p>';
+  document.getElementById('resultado').innerHTML = `
+    <p>Tempo: ${tempo} meses</p>
+    <p>Multa: R$ ${multa.toLocaleString()}</p>
+  `;
 }
 
 function copiarPrisao() {
@@ -232,234 +246,36 @@ function copiarPrisao() {
 
   const nome = document.getElementById('nome').value.trim() || 'N/A';
   const rg = document.getElementById('rg').value.trim() || 'N/A';
-
-  let tempo = 0;
-  let multa = 0;
-
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.tempo);
-    multa += parseInt(el.dataset.multa);
-  });
-
   const listaCrimes = crimesSelecionados.map(c => '- ' + c).join('\n');
 
-  const texto =
-    '```md\n\n' +
-    '# INFORMAÇÕES DO PRESO:\n' +
-    '* NOME: ' + nome + '\n' +
-    '* RG: ' + rg + '\n\n' +
-    '# PENA TOTAL: ' + tempo + ' meses\n' +
-    '# MULTA: R$' + multa.toLocaleString() + '\n\n' +
-    '# CRIMES:\n' +
-    'CRIMES (ARTIGOS SELECIONADOS):\n' +
-    listaCrimes + '\n\n```';
+  const texto = `\`\`\`md
+
+# INFORMAÇÕES DO PRESO:
+* NOME: ${nome}
+* RG: ${rg}
+
+# PENA TOTAL: ${document.querySelector('#resultado p').innerText.replace('Tempo: ', '')}
+# MULTA: R$ ${document.querySelector('#resultado p:nth-child(2)').innerText.replace('Multa: R$ ', '')}
+
+# CRIMES:
+CRIMES (ARTIGOS SELECIONADOS):
+${listaCrimes}
+
+\`\`\``;
 
   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(texto).then(() => {
-      alert('Prisão copiada!');
-    }).catch(() => {
-      fallbackCopy(texto);
-    });
-  } else {
-    fallbackCopy(texto);
-  }
+    navigator.clipboard.writeText(texto).then(() => alert('Prisão copiada!'))
+      .catch(() => fallbackCopy(texto));
+  } else fallbackCopy(texto);
 }
 
 function fallbackCopy(texto) {
   const textarea = document.getElementById('saida');
   textarea.value = texto;
   textarea.select();
-  textarea.setSelectionRange(0, 99999);
-
-  try {
-    document.execCommand('copy');
-    alert('Prisão copiada! (modo compatível)');
-  } catch (err) {
-    alert('Copiar falhou! Copie manualmente abaixo.');
-  }
+  document.execCommand('copy');
+  alert('Prisão copiada! (modo compatível)');
 }
-</script>
-
-</body>
-</html>
-<!DOCTYPE html>
-
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Calculadora Penal - Alvorada City</title>
-
-<style>
-body {
-  background: #020617;
-  color: #22c55e;
-  font-family: Arial;
-  margin: 0;
-}
-
-header {
-  text-align: center;
-  padding: 20px;
-  border-bottom: 1px solid #22c55e;
-}
-
-h1 {
-  text-shadow: 0 0 10px #22c55e;
-}
-
-.container {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
-
-input {
-  padding: 10px;
-  margin: 5px 0;
-  width: 48%;
-}
-
-.crime {
-  display: flex;
-  justify-content: space-between;
-  background: #020617;
-  border: 1px solid #22c55e;
-  padding: 10px;
-  margin: 5px 0;
-}
-
-button {
-  background: #22c55e;
-  border: none;
-  padding: 10px;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.resultado {
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #22c55e;
-}
-
-textarea {
-  width: 100%;
-  height: 180px;
-  margin-top: 10px;
-}
-</style>
-
-</head>
-
-<body>
-
-<header>
-  <h1>🚔 MDT - ALVORADA CITY</h1>
-</header>
-
-<div class="container">
-
-<input id="nome" placeholder="Nome do preso">
-<input id="rg" placeholder="RG">
-
-<h3>CRIMES:</h3>
-<div id="crimes"></div>
-
-<button onclick="calcular()">Calcular Pena</button> <button onclick="copiar()">Copiar MDT</button>
-
-<div class="resultado" id="resultado">
-Pena: 0 meses | Multa: R$0
-</div>
-
-<textarea id="saida" placeholder="Texto vai aparecer aqui..."></textarea>
-
-</div>
-
-<script>
-
-// LISTA COMPLETA (resumida, você pode expandir depois)
-const crimes = [
-  {cod:"1.1", nome:"Roubo a viatura", tempo:10, multa:10000},
-  {cod:"1.2", nome:"Falsa comunicação de crime", tempo:10, multa:1500},
-  {cod:"1.3", nome:"Ocultação facial", tempo:5, multa:500},
-  {cod:"1.4", nome:"Vandalismo", tempo:5, multa:1000},
-  {cod:"1.5", nome:"Invasão de propriedade", tempo:5, multa:1000},
-  {cod:"1.6", nome:"Roubo de carro", tempo:5, multa:2000},
-  {cod:"1.7", nome:"Tráfico de drogas", tempo:8, multa:1500},
-  {cod:"1.8", nome:"Sequestro", tempo:10, multa:2000},
-  {cod:"1.9", nome:"Lesão corporal", tempo:3, multa:500},
-  {cod:"1.10", nome:"Homicídio doloso", tempo:10, multa:2500},
-  {cod:"1.11", nome:"Porte de arma leve", tempo:5, multa:200},
-  {cod:"1.12", nome:"Porte de arma média", tempo:8, multa:4000},
-  {cod:"1.13", nome:"Porte de arma pesada", tempo:15, multa:10000}
-];
-
-const div = document.getElementById("crimes");
-
-// render crimes
-crimes.forEach(c => {
-  div.innerHTML += `
-    <div class="crime">
-      <span>${c.cod} - ${c.nome}</span>
-      <input type="checkbox" data-t="${c.tempo}" data-m="${c.multa}">
-    </div>
-  `;
-});
-
-function calcular(){
-  let tempo = 0;
-  let multa = 0;
-  let lista = [];
-
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.t);
-    multa += parseInt(el.dataset.m);
-    lista.push(el.parentElement.innerText);
-  });
-
-  document.getElementById("resultado").innerText =
-    `Pena: ${tempo} meses | Multa: R$${multa.toLocaleString()}`;
-
-  const nome = document.getElementById("nome").value || "N/A";
-  const rg = document.getElementById("rg").value || "N/A";
-
-  const texto =
-`# INFORMAÇÕES DO PRESO:
-* NOME: ${nome}
-* RG: ${rg}
-
-# PENA TOTAL: ${tempo} meses
-# MULTA: R$${multa.toLocaleString()}
-
-# CRIMES:
-${lista.map(c => "- " + c).join("\n")}`;
-
-  document.getElementById("saida").value = texto;
-
-  localStorage.setItem("mdt", texto);
-}
-
-function copiar(){
-  const texto = document.getElementById("saida").value;
-
-  if(!texto){
-    alert("Clique em calcular primeiro!");
-    return;
-  }
-
-  navigator.clipboard.writeText(texto)
-    .then(()=> alert("Copiado com sucesso!"))
-    .catch(()=> alert("Erro ao copiar"));
-}
-
-// carregar último
-window.onload = () => {
-  const salvo = localStorage.getItem("mdt");
-  if(salvo){
-    document.getElementById("saida").value = salvo;
-  }
-};
-
 </script>
 
 </body>
