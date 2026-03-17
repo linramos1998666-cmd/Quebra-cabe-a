@@ -167,4 +167,38 @@ body {
     border-radius: 3px;
     padding: 10px;
 }
-</style>
+</style><label class="crime-item">
+  <input type="checkbox" class="crime" data-pena="5" data-multa="2000" data-nome="6.4 - Tráfico de drogas">
+  <span>6.4 - Tráfico de drogas</span>
+  <button class="info-btn">?</button>
+</label>
+<script>
+const crimes = document.querySelectorAll('.crime');
+
+function atualizar() {
+    let pena = 0;
+    let multa = 0;
+    let lista = [];
+
+    crimes.forEach(c => {
+        if (c.checked) {
+            pena += parseInt(c.dataset.pena);
+            multa += parseInt(c.dataset.multa);
+            lista.push(c.dataset.nome);
+        }
+    });
+
+    document.getElementById('penaTotal').value = pena + " meses";
+    document.getElementById('multaTotal').value = "R$ " + multa.toLocaleString();
+    document.getElementById('listaCrimes').value = lista.join("\n");
+}
+
+crimes.forEach(c => c.addEventListener('change', atualizar));
+
+function limparTudo() {
+    crimes.forEach(c => c.checked = false);
+    document.getElementById('penaTotal').value = "";
+    document.getElementById('multaTotal').value = "";
+    document.getElementById('listaCrimes').value = "";
+}
+</script>
