@@ -405,6 +405,38 @@ function fallbackCopy(texto) {
   } catch {
     alert('Erro ao copiar');
   }
+} 
+  function atualizarTextoAutomatico() {
+  const nome = document.getElementById('nome').value.trim() || 'N/A';
+  const rg = document.getElementById('rg').value.trim() || 'N/A';
+
+  let tempo = 0;
+  let multa = 0;
+  let lista = [];
+
+  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
+    tempo += parseInt(el.dataset.tempo);
+    multa += parseInt(el.dataset.multa);
+
+    const nomeCrime = el.parentElement.querySelector('span').innerText;
+    lista.push(nomeCrime);
+  });
+
+  const crimesTexto = lista.length
+    ? lista.map((c, i) => (i + 1) + '. ' + c).join('\n')
+    : 'Nenhum crime selecionado';
+
+  const texto =
+'```md\n\n' +
+'# INFORMAÇÕES DO PRESO:\n' +
+'* NOME: ' + nome + '\n' +
+'* RG: ' + rg + '\n\n' +
+'# PENA TOTAL: ' + tempo + ' meses\n' +
+'# MULTA: R$' + multa.toLocaleString() + '\n\n' +
+'# CRIMES:\n' +
+crimesTexto + '\n\n```';
+
+  document.getElementById('saida').value = texto;
 }
 </script>
 
