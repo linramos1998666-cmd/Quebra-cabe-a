@@ -155,11 +155,15 @@ onmouseout="this.style.transform='scale(1)'">
 
 <div class="container">
 
-<h2>Selecione os crimes:</h2>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
 
-<div style="margin-bottom:15px; display:flex; gap:10px;">
-  <input id="nome" placeholder="Nome do preso" style="padding:6px; width:250px;">
-  <input id="rg" placeholder="RG" style="padding:6px; width:120px;">
+  <h2 style="margin:0;">Selecione os crimes:</h2>
+
+  <div style="display:flex; gap:10px;">
+    <input id="nome" placeholder="Nome do preso" style="padding:6px; width:250px;">
+    <input id="rg" placeholder="RG" style="padding:6px; width:120px;">
+  </div>
+
 </div>
 
 <div id="crimes" class="grid"></div>
