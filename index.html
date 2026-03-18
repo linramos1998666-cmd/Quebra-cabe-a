@@ -296,6 +296,7 @@ function copiarPrisao() {
 
   const nome = document.getElementById('nome').value.trim() || 'N/A';
   const rg = document.getElementById('rg').value.trim() || 'N/A';
+  const data = new Date().toLocaleDateString('pt-BR');
 
   let tempo = 0;
   let multa = 0;
