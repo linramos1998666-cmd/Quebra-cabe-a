@@ -23,14 +23,12 @@ header {
   padding: 20px;
 }
 
-/* GRID 3 COLUNAS */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
-/* CARD */
 .card {
   background: #020617;
   padding: 15px;
@@ -44,7 +42,6 @@ header {
   margin-bottom: 10px;
 }
 
-/* CRIMES */
 .crime {
   display: flex;
   justify-content: space-between;
@@ -59,13 +56,11 @@ header {
   background: #334155;
 }
 
-/* INPUTS */
 input {
   border-radius: 6px;
   border: none;
 }
 
-/* BOTÃO */
 button {
   background: #22c55e;
   border: none;
@@ -76,7 +71,6 @@ button {
   cursor: pointer;
 }
 
-/* RESULTADO */
 .resultado {
   margin-top: 20px;
   background: #020617;
@@ -92,6 +86,17 @@ textarea {
   resize: none;
   border-radius: 6px;
   border: none;
+}
+
+/* NOVO - CAIXA DE CRIMES */
+#lista-crimes {
+  background: #020617;
+  border: 1px solid #22c55e;
+  border-radius: 10px;
+  padding: 10px;
+  min-height: 120px;
+  margin-top: 10px;
+  margin-bottom: 15px;
 }
 </style>
 </head>
@@ -124,6 +129,9 @@ textarea {
 
 <button onclick="calcular()">Calcular Pena</button>
 <button onclick="copiarPrisao()" style="margin-left:10px;">Copiar Prisão</button>
+
+<h3 style="margin-top:20px;">CRIMES (ARTIGOS SELECIONADOS):</h3>
+<div id="lista-crimes"></div>
 
 <div class="resultado" id="resultado">
   <p>Tempo: 0 meses</p>
@@ -244,7 +252,7 @@ categorias.forEach((cat, catIndex) => {
 
     div.innerHTML =
       '<span>' + numero + ' - ' + c.nome + '</span>' +
-      '<input type="checkbox" data-tempo="' + c.tempo + '" data-multa="' + c.multa + '">';
+      '<input type="checkbox" data-tempo="' + c.tempo + '" data-multa="' + c.multa + '" onchange="atualizarTempoReal()">';
 
     card.appendChild(div);
   });
@@ -254,7 +262,7 @@ categorias.forEach((cat, catIndex) => {
 
 let crimesSelecionados = [];
 
-function calcular() {
+function atualizarTempoReal() {
   let tempo = 0;
   let multa = 0;
   crimesSelecionados = [];
@@ -267,9 +275,16 @@ function calcular() {
     crimesSelecionados.push(nomeCrime);
   });
 
+  document.getElementById('lista-crimes').innerHTML =
+    crimesSelecionados.map(c => "• " + c).join("<br>");
+
   document.getElementById('resultado').innerHTML =
     '<p>Tempo: ' + tempo + ' meses</p>' +
     '<p>Multa: R$ ' + multa.toLocaleString() + '</p>';
+}
+
+function calcular() {
+  atualizarTempoReal();
 }
 
 function copiarPrisao() {
@@ -298,28 +313,9 @@ function copiarPrisao() {
 '# CRIMES:\n' +
 listaCrimes + '\n\n```';
 
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(texto).then(() => {
-      alert('Prisão copiada!');
-    }).catch(() => {
-      fallbackCopy(texto);
-    });
-  } else {
-    fallbackCopy(texto);
-  }
-}
-
-function fallbackCopy(texto) {
-  const textarea = document.getElementById('saida');
-  textarea.value = texto;
-  textarea.select();
-
-  try {
-    document.execCommand('copy');
-    alert('Copiado (modo antigo)');
-  } catch {
-    alert('Erro ao copiar');
-  }
+  navigator.clipboard.writeText(texto).then(() => {
+    alert('Prisão copiada!');
+  });
 }
 </script>
 
