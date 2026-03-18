@@ -6,191 +6,49 @@
 <title>Calculadora Penal - Alvorada City</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-body {
-    background: #dcdcdc;
-}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:#dcdcdc}
 
 /* TOPO */
-.topbar {
-    background: linear-gradient(180deg, #ff2f5b 0%, #1b1b1b 100%);
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto auto;
-    gap: 20px;
-    align-items: end;
+.topbar{
+background:linear-gradient(180deg,#ff2f5b,#1b1b1b);
+padding:20px;
+display:grid;
+grid-template-columns:1fr 1fr 1fr auto auto;
+gap:20px
 }
-
-.field-group label {
-    color: white;
-    font-weight: bold;
-    margin-bottom: 6px;
-    display: block;
-}
-
-.field-group input {
-    width: 100%;
-    height: 38px;
-    border-radius: 4px;
-    border: none;
-    padding: 0 10px;
-}
-
-/* BOTÕES TOPO */
-.top-btn {
-    height: 50px;
-    border-radius: 4px;
-    border: none;
-    cursor: pointer;
-    color: white;
-    font-size: 16px;
-}
-
-.btn-book {
-    background: #3b4257;
-}
-
-.btn-tutorial {
-    background: #ff2f5b;
-}
+.field-group label{color:#fff;font-weight:bold}
+.field-group input{width:100%;height:38px;border:none;border-radius:4px;padding:5px}
 
 /* LAYOUT */
-.main {
-    display: grid;
-    grid-template-columns: 1fr 420px;
-}
+.main{display:grid;grid-template-columns:1fr 420px}
 
 /* ESQUERDA */
-.content-left {
-    padding: 10px;
-}
-
-.crimes-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-}
-
-.crime-column {
-    background: #e5e5e5;
-    padding: 10px;
-    border-radius: 4px;
-}
-
-/* TITULO */
-.category-title {
-    background: #ddd;
-    padding: 8px;
-    border-radius: 20px;
-    text-align: center;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-/* ITEM */
-.crime-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 14px;
-}
-
-.crime-item span {
-    flex: 1;
-    margin-left: 6px;
-}
-
-.info-btn {
-    background: #ff2f5b;
-    border: none;
-    color: white;
-    width: 22px;
-    height: 22px;
-    border-radius: 4px;
-    cursor: pointer;
-}
+.content-left{padding:10px}
+.crimes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.crime-column{background:#e5e5e5;padding:10px;border-radius:5px;max-height:85vh;overflow:auto}
+.category-title{background:#ddd;padding:8px;border-radius:20px;text-align:center;margin-bottom:10px;font-weight:bold}
+.crime-item{display:flex;align-items:center;margin-bottom:8px;font-size:14px}
+.crime-item span{flex:1;margin-left:6px}
+.info-btn{background:#ff2f5b;color:#fff;border:none;width:20px;height:20px;border-radius:4px}
 
 /* DIREITA */
-.sidebar {
-    background: linear-gradient(135deg, #1a1824, #20151d);
-    color: white;
-    padding: 20px;
-}
-
-.calc-title {
-    text-align: center;
-    font-size: 26px;
-    margin-bottom: 20px;
-    font-style: italic;
-}
-
-.result-input {
-    width: 100%;
-    height: 34px;
-    margin-bottom: 15px;
-    border-radius: 3px;
-    border: none;
-    background: #eee;
-    padding: 0 10px;
-}
-
-.clear-btn {
-    width: 100%;
-    height: 50px;
-    background: #d7113a;
-    border: none;
-    color: white;
-    font-size: 18px;
-    border-radius: 3px;
-    cursor: pointer;
-}
-
-.clear-btn:hover {
-    background: #b50d2f;
-}
-
-.box {
-    margin-top: 20px;
-    border-top: 1px solid #555;
-    padding-top: 10px;
-}
-
-.selected-crimes {
-    width: 100%;
-    height: 150px;
-    border: none;
-    border-radius: 3px;
-    padding: 10px;
-}
+.sidebar{background:linear-gradient(135deg,#1a1824,#20151d);color:#fff;padding:20px}
+.calc-title{text-align:center;font-size:26px;margin-bottom:20px}
+.result-input{width:100%;height:34px;margin-bottom:10px;border:none;border-radius:3px;background:#eee;padding:5px}
+.clear-btn{width:100%;height:50px;background:#d7113a;border:none;color:#fff;font-size:18px;border-radius:3px;margin-top:10px;cursor:pointer}
+.selected-crimes{width:100%;height:180px;margin-top:10px;border:none;border-radius:3px;padding:10px}
 </style>
 </head>
 
 <body>
 
 <header class="topbar">
-    <div class="field-group">
-        <label>Nome do Preso</label>
-        <input type="text">
-    </div>
-
-    <div class="field-group">
-        <label>RG do Preso</label>
-        <input type="text">
-    </div>
-
-    <div class="field-group">
-        <label>RG do Advogado</label>
-        <input type="text">
-    </div>
-
-    <button class="top-btn btn-book">📖</button>
-    <button class="top-btn btn-tutorial">Tutorial</button>
+<div class="field-group"><label>Nome</label><input></div>
+<div class="field-group"><label>RG Preso</label><input></div>
+<div class="field-group"><label>RG Advogado</label><input></div>
+<button style="background:#3b4257;color:#fff;border:none">📖</button>
+<button style="background:#ff2f5b;color:#fff;border:none">Tutorial</button>
 </header>
 
 <main class="main">
@@ -200,51 +58,27 @@ body {
 <div class="crimes-grid">
 
 <div class="crime-column">
-<div class="category-title">CONTRA A VIDA</div>
+<div class="category-title">CRIMES</div>
 
-<label class="crime-item">
-<input type="checkbox" class="crime" data-pena="12" data-multa="5000" data-nome="1.1 - Homicídio">
-<span>1.1 - Homicídio</span>
-<button class="info-btn">?</button>
-</label>
+<!-- TODOS ARTIGOS -->
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="10" data-multa="10000" data-nome="Art.1 Roubo a viatura"><span>Art.1 Roubo a viatura</span><button class="info-btn">?</button></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="10" data-multa="1500" data-nome="Art.2 Falsa comunicação"><span>Art.2 Falsa comunicação</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="500" data-nome="Art.3 Ocultação facial"><span>Art.3 Ocultação facial</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="1000" data-nome="Art.6 Vandalismo"><span>Art.6 Vandalismo</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="1000" data-nome="Art.7 Invasão"><span>Art.7 Invasão</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="1000" data-nome="Art.8 Roubo propriedade"><span>Art.8 Roubo propriedade</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="500" data-nome="Art.9 Dano patrimônio"><span>Art.9 Dano patrimônio</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="10" data-multa="2000" data-nome="Art.10 Tentativa fuga"><span>Art.10 Tentativa fuga</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="3" data-multa="1000" data-nome="Art.11 Desobediência"><span>Art.11 Desobediência</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="3" data-multa="1000" data-nome="Art.12 Desacato"><span>Art.12 Desacato</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="15" data-multa="3000" data-nome="Art.13 Resistência"><span>Art.13 Resistência</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="1500" data-nome="Art.14 Calúnia"><span>Art.14 Calúnia</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="35" data-multa="10000" data-nome="Art.29 Estelionato"><span>Art.29 Estelionato</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="100" data-multa="0" data-nome="Art.31 Extorsão"><span>Art.31 Extorsão</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="5" data-multa="500" data-nome="Art.32 Furto"><span>Art.32 Furto</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="8" data-multa="1500" data-nome="Art.39 Tráfico drogas"><span>Art.39 Tráfico drogas</span></label>
+<label class="crime-item"><input type="checkbox" class="crime" data-pena="20" data-multa="10000" data-nome="Art.46 Arma pesada"><span>Art.46 Arma pesada</span></label>
 
-<label class="crime-item">
-<input type="checkbox" class="crime" data-pena="6" data-multa="2500" data-nome="1.2 - Lesão corporal">
-<span>1.2 - Lesão corporal</span>
-<button class="info-btn">?</button>
-</label>
-</div>
-
-<div class="crime-column">
-<div class="category-title">NARCOTRÁFICO</div>
-
-<label class="crime-item">
-<input type="checkbox" class="crime" data-pena="4" data-multa="1000" data-nome="6.3 - Posse de Drogas">
-<span>6.3 - Posse de Drogas</span>
-<button class="info-btn">?</button>
-</label>
-
-<label class="crime-item">
-<input type="checkbox" class="crime" data-pena="9" data-multa="4500" data-nome="6.4 - Tráfico de drogas">
-<span>6.4 - Tráfico de drogas</span>
-<button class="info-btn">?</button>
-</label>
-</div>
-
-<div class="crime-column">
-<div class="category-title">TRÂNSITO</div>
-
-<label class="crime-item">
-<input type="checkbox" class="crime" data-pena="3" data-multa="700" data-nome="11.1 - Tentativa de Fuga">
-<span>11.1 - Tentativa de Fuga</span>
-<button class="info-btn">?</button>
-</label>
-
-<label class="crime-item">
-<input type="checkbox" class="crime" data-pena="5" data-multa="1500" data-nome="11.15 - Sem habilitação">
-<span>11.15 - Sem habilitação</span>
-<button class="info-btn">?</button>
-</label>
 </div>
 
 </div>
@@ -256,53 +90,46 @@ body {
 <h1 class="calc-title">CALCULADORA</h1>
 
 ⚖️ PENA:
-<input class="result-input" id="penaTotal" readonly>
+<input id="penaTotal" class="result-input" readonly>
 
 💸 MULTA:
-<input class="result-input" id="multaTotal" readonly>
+<input id="multaTotal" class="result-input" readonly>
 
 💰 FIANÇA:
-<input class="result-input" id="fiancaTotal" readonly>
+<input class="result-input" readonly>
 
-<button class="clear-btn" onclick="limpar()">🗑 LIMPAR</button>
+<button class="clear-btn" onclick="limpar()">LIMPAR</button>
 
-<div class="box">
-<h3>CRIMES SELECIONADOS</h3>
-<textarea class="selected-crimes" id="lista"></textarea>
-</div>
+<textarea id="lista" class="selected-crimes"></textarea>
 
 </aside>
 
 </main>
 
 <script>
-const crimes = document.querySelectorAll('.crime');
+const crimes=document.querySelectorAll('.crime');
 
-function atualizar() {
-    let pena = 0;
-    let multa = 0;
-    let lista = [];
-
-    crimes.forEach(c => {
-        if (c.checked) {
-            pena += parseInt(c.dataset.pena);
-            multa += parseInt(c.dataset.multa);
-            lista.push(c.dataset.nome);
-        }
-    });
-
-    document.getElementById('penaTotal').value = pena + " meses";
-    document.getElementById('multaTotal').value = "R$ " + multa.toLocaleString();
-    document.getElementById('lista').value = lista.join("\n");
+function atualizar(){
+let pena=0,multa=0,lista=[];
+crimes.forEach(c=>{
+if(c.checked){
+pena+=parseInt(c.dataset.pena);
+multa+=parseInt(c.dataset.multa);
+lista.push(c.dataset.nome);
+}
+});
+penaTotal.value=pena+" meses";
+multaTotal.value="R$ "+multa.toLocaleString();
+lista.value=lista.join("\n");
 }
 
-crimes.forEach(c => c.addEventListener('change', atualizar));
+crimes.forEach(c=>c.addEventListener('change',atualizar));
 
-function limpar() {
-    crimes.forEach(c => c.checked = false);
-    document.getElementById('penaTotal').value = "";
-    document.getElementById('multaTotal').value = "";
-    document.getElementById('lista').value = "";
+function limpar(){
+crimes.forEach(c=>c.checked=false);
+penaTotal.value="";
+multaTotal.value="";
+lista.value="";
 }
 </script>
 
