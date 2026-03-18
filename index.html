@@ -320,7 +320,7 @@ function copiarPrisao() {
 '# PENA TOTAL: ' + tempo + ' meses\n' +
 '# MULTA: R$' + multa.toLocaleString() + '\n\n' +
 '# CRIMES:\n' +
-
+listaCrimes + '\n\n```';
 
   navigator.clipboard.writeText(texto).then(() => {
     alert('Prisão copiada!');
