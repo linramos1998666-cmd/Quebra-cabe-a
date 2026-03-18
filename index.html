@@ -286,35 +286,8 @@ function copiarPrisao() {
     multa += parseInt(el.dataset.multa);
   });
 
-  let crimesSelecionados = [];
+  const listaCrimes = crimesSelecionados.map(c => '- ' + c).join('\n');
 
-function atualizarTexto() {
-  const nome = document.getElementById('nome').value.trim() || 'N/A';
-  const rg = document.getElementById('rg').value.trim() || 'N/A';
-
-  let tempo = 0;
-  let multa = 0;
-  crimesSelecionados = [];
-
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.tempo);
-    multa += parseInt(el.dataset.multa);
-
-    const nomeCrime = el.parentElement.querySelector('span').innerText;
-    crimesSelecionados.push(nomeCrime);
-  });
-
-  // Atualiza resultado em cima
-  document.getElementById('resultado').innerHTML =
-    '<p>Tempo: ' + tempo + ' meses</p>' +
-    '<p>Multa: R$ ' + multa.toLocaleString() + '</p>';
-
-  // Lista de crimes formatada
-  const listaCrimes = crimesSelecionados.length > 0
-    ? crimesSelecionados.map((c, i) => (i + 1) + '. ' + c).join('\n')
-    : 'Nenhum crime selecionado';
-
-  // TEXTO FINAL AUTOMÁTICO
   const texto =
 '```md\n\n' +
 '# INFORMAÇÕES DO PRESO:\n' +
@@ -324,30 +297,6 @@ function atualizarTexto() {
 '# MULTA: R$' + multa.toLocaleString() + '\n\n' +
 '# CRIMES:\n' +
 listaCrimes + '\n\n```';
-
-  document.getElementById('saida').value = texto;
-}
-
-// ATUALIZA AUTOMATICAMENTE AO CLICAR NOS CHECKBOX
-document.addEventListener('change', function(e) {
-  if (e.target.type === 'checkbox') {
-    atualizarTexto();
-  }
-});
-
-// ATUALIZA AO DIGITAR NOME OU RG
-document.getElementById('nome').addEventListener('input', atualizarTexto);
-document.getElementById('rg').addEventListener('input', atualizarTexto);
-
-// BOTÃO CONTINUA FUNCIONANDO
-function calcular() {
-  atualizarTexto();
-}
-
-function copiarPrisao() {
-  atualizarTexto();
-
-  const texto = document.getElementById('saida').value;
 
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(texto).then(() => {
@@ -372,4 +321,9 @@ function fallbackCopy(texto) {
     alert('Erro ao copiar');
   }
 }
+</script>
+
+</body>
 </html>
+
+o meu codigo e esse eu nao sei alterar certo, faz pra mim.
