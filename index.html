@@ -136,7 +136,44 @@ textarea {
 
 <script>
 const categorias = [
-{
+titulo: "CRIMES DIVERSOS",
+crimes: [
+{nome: "Ocultação facial", tempo: 5, multa: 500},
+{nome: "Vandalismo", tempo: 5, multa: 1000},
+{nome: "Tentativa de fuga", tempo: 10, multa: 2000},
+{nome: "Calúnia e difamação", tempo: 5, multa: 1500},
+{nome: "Assédio moral", tempo: 5, multa: 1000},
+{nome: "Omissão de socorro", tempo: 5, multa: 1000},
+{nome: "Ameaça por autoridade", tempo: 40, multa: 30000},
+{nome: "Estelionato", tempo: 35, multa: 10000},
+{nome: "Formação de quadrilha", tempo: 5, multa: 1000},
+{nome: "Contrabando", tempo: 5, multa: 1000},
+{nome: "Posse de material ilícito", tempo: 15, multa: 8000},
+{nome: "Tráfico de drogas", tempo: 8, multa: 1500},
+{nome: "Posse de dinheiro sujo", tempo: 3, multa: 500},
+{nome: "Tráfico de armas leves", tempo: 10, multa: 2000},
+{nome: "Tráfico de armas médias", tempo: 15, multa: 4000},
+{nome: "Tráfico de armas pesadas", tempo: 20, multa: 10000},
+{nome: "Ameaça", tempo: 3, multa: 500},
+{nome: "Porte de armas leves", tempo: 5, multa: 200},
+{nome: "Porte de armas médias", tempo: 8, multa: 4000},
+{nome: "Porte de armas pesadas", tempo: 15, multa: 10000},
+{nome: "Munição leve", tempo: 3, multa: 1000},
+{nome: "Munição média", tempo: 5, multa: 2000},
+{nome: "Munição pesada", tempo: 8, multa: 4000},
+{nome: "Tráfico munição leve", tempo: 5, multa: 2000},
+{nome: "Tráfico munição média", tempo: 8, multa: 4000},
+{nome: "Tráfico munição pesada", tempo: 12, multa: 5000},
+{nome: "Corrida ilegal", tempo: 10, multa: 2000},
+{nome: "Invasão departamento policial", tempo: 20, multa: 5000},
+{nome: "Abandono de veículo", tempo: 1, multa: 1000},
+{nome: "Roubo mergulhador", tempo: 10, multa: 3000},
+{nome: "Aeronave sem rádio", tempo: 1, multa: 15000},
+{nome: "Aeronave danificada", tempo: 1, multa: 15000}
+]
+}
+];
+  {
 titulo: "CRIMES CONTRA A ADMINISTRAÇÃO",
 crimes: [
 {nome: "Falsa comunicação de crime", tempo: 10, multa: 1500},
@@ -188,43 +225,7 @@ crimes: [
 ]
 },
 {
-titulo: "CRIMES DIVERSOS",
-crimes: [
-{nome: "Ocultação facial", tempo: 5, multa: 500},
-{nome: "Vandalismo", tempo: 5, multa: 1000},
-{nome: "Tentativa de fuga", tempo: 10, multa: 2000},
-{nome: "Calúnia e difamação", tempo: 5, multa: 1500},
-{nome: "Assédio moral", tempo: 5, multa: 1000},
-{nome: "Omissão de socorro", tempo: 5, multa: 1000},
-{nome: "Ameaça por autoridade", tempo: 40, multa: 30000},
-{nome: "Estelionato", tempo: 35, multa: 10000},
-{nome: "Formação de quadrilha", tempo: 5, multa: 1000},
-{nome: "Contrabando", tempo: 5, multa: 1000},
-{nome: "Posse de material ilícito", tempo: 15, multa: 8000},
-{nome: "Tráfico de drogas", tempo: 8, multa: 1500},
-{nome: "Posse de dinheiro sujo", tempo: 3, multa: 500},
-{nome: "Tráfico de armas leves", tempo: 10, multa: 2000},
-{nome: "Tráfico de armas médias", tempo: 15, multa: 4000},
-{nome: "Tráfico de armas pesadas", tempo: 20, multa: 10000},
-{nome: "Ameaça", tempo: 3, multa: 500},
-{nome: "Porte de armas leves", tempo: 5, multa: 200},
-{nome: "Porte de armas médias", tempo: 8, multa: 4000},
-{nome: "Porte de armas pesadas", tempo: 15, multa: 10000},
-{nome: "Munição leve", tempo: 3, multa: 1000},
-{nome: "Munição média", tempo: 5, multa: 2000},
-{nome: "Munição pesada", tempo: 8, multa: 4000},
-{nome: "Tráfico munição leve", tempo: 5, multa: 2000},
-{nome: "Tráfico munição média", tempo: 8, multa: 4000},
-{nome: "Tráfico munição pesada", tempo: 12, multa: 5000},
-{nome: "Corrida ilegal", tempo: 10, multa: 2000},
-{nome: "Invasão departamento policial", tempo: 20, multa: 5000},
-{nome: "Abandono de veículo", tempo: 1, multa: 1000},
-{nome: "Roubo mergulhador", tempo: 10, multa: 3000},
-{nome: "Aeronave sem rádio", tempo: 1, multa: 15000},
-{nome: "Aeronave danificada", tempo: 1, multa: 15000}
-]
-}
-];
+
 
 const container = document.getElementById("crimes");
 
@@ -405,38 +406,6 @@ function fallbackCopy(texto) {
   } catch {
     alert('Erro ao copiar');
   }
-} 
-  function atualizarTextoAutomatico() {
-  const nome = document.getElementById('nome').value.trim() || 'N/A';
-  const rg = document.getElementById('rg').value.trim() || 'N/A';
-
-  let tempo = 0;
-  let multa = 0;
-  let lista = [];
-
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.tempo);
-    multa += parseInt(el.dataset.multa);
-
-    const nomeCrime = el.parentElement.querySelector('span').innerText;
-    lista.push(nomeCrime);
-  });
-
-  const crimesTexto = lista.length
-    ? lista.map((c, i) => (i + 1) + '. ' + c).join('\n')
-    : 'Nenhum crime selecionado';
-
-  const texto =
-'```md\n\n' +
-'# INFORMAÇÕES DO PRESO:\n' +
-'* NOME: ' + nome + '\n' +
-'* RG: ' + rg + '\n\n' +
-'# PENA TOTAL: ' + tempo + ' meses\n' +
-'# MULTA: R$' + multa.toLocaleString() + '\n\n' +
-'# CRIMES:\n' +
-crimesTexto + '\n\n```';
-
-  document.getElementById('saida').value = texto;
 }
 </script>
 
