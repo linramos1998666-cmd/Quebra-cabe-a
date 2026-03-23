@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>ULi6 CS Puzzle</title>
+<title>ULi6 CS Puzzle PRO+</title>
 
 <style>
 body {
@@ -32,11 +32,14 @@ header {
   border-radius:10px;
 }
 
+/* INVENTARIO */
 .item {
   padding:8px;
   margin:5px 0;
+  cursor:pointer;
 }
 
+/* PUZZLE */
 .tabuleiro {
   width:300px;
   height:300px;
@@ -52,6 +55,38 @@ header {
   cursor:grab;
 }
 
+/* CAIXA */
+.case-container {
+  overflow:hidden;
+  width:100%;
+  border:2px solid #22c55e;
+  height:100px;
+  position:relative;
+}
+
+.case-track {
+  display:flex;
+  transition:3s cubic-bezier(0.1,0.7,0.1,1);
+}
+
+.case-item {
+  width:100px;
+  height:100px;
+  background-size:cover;
+  border-right:2px solid #020617;
+}
+
+/* PREVIEW */
+.preview {
+  text-align:center;
+  margin-top:10px;
+}
+.preview img {
+  width:200px;
+  border:3px solid gold;
+}
+
+/* BOTÃO */
 button {
   padding:10px;
   width:100%;
@@ -62,20 +97,6 @@ button {
   cursor:pointer;
 }
 
-/* CORES RARIDADE */
-.comum { border:2px solid #9ca3af; }
-.raro { border:2px solid #3b82f6; }
-.epico { border:2px solid #a855f7; }
-.lendario { border:2px solid #facc15; }
-
-.glitch {
-  animation: glitch 0.2s;
-}
-@keyframes glitch {
-  0%{transform:translate(2px,-2px);}
-  50%{transform:translate(-2px,2px);}
-  100%{transform:translate(0,0);}
-}
 </style>
 </head>
 
@@ -88,31 +109,44 @@ button {
 
 <div class="container">
 
+  <!-- INVENTARIO -->
   <div class="card">
     <h3>🎒 Inventário</h3>
     <div id="inv"></div>
   </div>
 
+  <!-- PUZZLE -->
   <div class="card">
     <div class="tabuleiro" id="tabuleiro"></div>
     <button onclick="embaralhar()">🔀 Embaralhar</button>
+
+    <!-- PREVIEW -->
+    <div class="preview" id="preview"></div>
   </div>
 
+  <!-- LOJA -->
   <div class="card">
-    <h3>🛒 Loja</h3>
-    <button onclick="comprarCaixa()">🎁 Caixa ($500)</button>
+    <h3>🎁 Caixa</h3>
+
+    <div class="case-container">
+      <div class="case-track" id="caseTrack"></div>
+    </div>
+
+    <button onclick="abrirCaixa()">ABRIR CAIXA ($500)</button>
+
+    <h3>💸 Marketplace</h3>
+    <div id="market"></div>
   </div>
 
 </div>
 
+<audio id="caseSound" src="https://www.myinstants.com/media/sounds/csgo-case.mp3"></audio>
+
 <script>
 
 /* LOGIN */
-let usuario = localStorage.getItem("user");
-if(!usuario){
-  usuario = prompt("Digite seu nome:");
-  localStorage.setItem("user", usuario);
-}
+let usuario = localStorage.getItem("user") || prompt("Seu nome:");
+localStorage.setItem("user", usuario);
 document.getElementById("user").innerText = "👤 " + usuario;
 
 /* CASH */
@@ -123,14 +157,14 @@ function atualizarCash(){
 
 /* RARIDADE */
 const raridades = [
-  {nome:"comum", chance:60},
-  {nome:"raro", chance:25},
-  {nome:"epico", chance:10},
-  {nome:"lendario", chance:5}
+  {nome:"Comum", cor:"#9ca3af", chance:60},
+  {nome:"Raro", cor:"#3b82f6", chance:25},
+  {nome:"Épico", cor:"#a855f7", chance:10},
+  {nome:"Lendário", cor:"#facc15", chance:5}
 ];
 
-/* SKINS CS (IMAGENS) */
-const skinsCS = [
+/* SKINS */
+const skins = [
   {nome:"AK-47 Redline", img:"https://i.imgur.com/6QKQ8XH.jpg"},
   {nome:"AWP Dragon Lore", img:"https://i.imgur.com/1n9Z1ZQ.jpg"},
   {nome:"M4A4 Howl", img:"https://i.imgur.com/Y5q9ZQh.jpg"},
@@ -139,76 +173,136 @@ const skinsCS = [
 
 let inventario = JSON.parse(localStorage.getItem("inv")) || [];
 
+/* SORTEAR RARIDADE */
+function sortearRaridade(){
+  let rand = Math.random()*100, soma=0;
+  for(let r of raridades){
+    soma += r.chance;
+    if(rand <= soma) return r;
+  }
+}
+
+/* INVENTARIO */
+function renderInventario(){
+  const div = document.getElementById("inv");
+  div.innerHTML = "";
+
+  inventario.forEach((item,i)=>{
+    const el = document.createElement("div");
+    el.className = "item";
+    el.style.border = "2px solid "+item.raridade.cor;
+    el.innerText = item.nome + " ("+item.raridade.nome+")";
+
+    el.onclick = ()=>{
+      document.getElementById("preview").innerHTML =
+        `<img src="${item.img}"><br>${item.nome}`;
+    };
+
+    div.appendChild(el);
+  });
+}
+
+/* MARKET */
+function renderMarket(){
+  const div = document.getElementById("market");
+  div.innerHTML = "";
+
+  inventario.forEach((item,i)=>{
+    const btn = document.createElement("button");
+    btn.innerText = "Vender "+item.nome+" ($300)";
+    btn.onclick = ()=>{
+      inventario.splice(i,1);
+      dinheiro += 300;
+      salvar();
+      atualizarCash();
+      renderInventario();
+      renderMarket();
+    };
+    div.appendChild(btn);
+  });
+}
+
+/* SALVAR */
 function salvar(){
   localStorage.setItem("inv", JSON.stringify(inventario));
   localStorage.setItem("cash", dinheiro);
 }
 
-function renderInventario(){
-  const div = document.getElementById("inv");
-  div.innerHTML = "";
+/* CAIXA ANIMAÇÃO */
+function abrirCaixa(){
+  if(dinheiro < 500) return alert("Sem dinheiro!");
 
-  inventario.forEach(item=>{
-    const el = document.createElement("div");
-    el.className = "item " + item.raridade;
-    el.innerText = item.nome + " (" + item.raridade + ")";
-    div.appendChild(el);
-  });
-}
+  dinheiro -= 500;
+  atualizarCash();
 
-/* SORTEAR RARIDADE */
-function sortearRaridade(){
-  let rand = Math.random()*100;
-  let soma = 0;
+  const track = document.getElementById("caseTrack");
+  track.innerHTML = "";
 
-  for(let r of raridades){
-    soma += r.chance;
-    if(rand <= soma){
-      return r.nome;
-    }
+  let resultado;
+
+  for(let i=0;i<30;i++){
+    const skin = skins[Math.floor(Math.random()*skins.length)];
+    const div = document.createElement("div");
+    div.className = "case-item";
+    div.style.backgroundImage = `url(${skin.img})`;
+    track.appendChild(div);
+
+    if(i === 25) resultado = skin;
   }
+
+  document.getElementById("caseSound").play();
+
+  setTimeout(()=>{
+    track.style.transform = "translateX(-2500px)";
+  },100);
+
+  setTimeout(()=>{
+    const raridade = sortearRaridade();
+
+    inventario.push({
+      nome:resultado.nome,
+      img:resultado.img,
+      raridade:raridade
+    });
+
+    salvar();
+    renderInventario();
+    renderMarket();
+
+    alert("🔥 GANHOU: "+resultado.nome+" ["+raridade.nome+"]");
+
+  },3200);
 }
 
 /* PUZZLE */
-let ordem = [];
-let imagemAtual = skinsCS[0];
-const tamanho = 3;
+let ordem = [], tamanho=3, imagemAtual=skins[0];
 
 function criar(){
   const tab = document.getElementById("tabuleiro");
-  tab.innerHTML = "";
+  tab.innerHTML="";
 
-  ordem.forEach((pos, index)=>{
-    const div = document.createElement("div");
-    div.className = "peca";
+  ordem.forEach((pos,i)=>{
+    const div=document.createElement("div");
+    div.className="peca";
 
-    const x = pos % tamanho;
-    const y = Math.floor(pos / tamanho);
+    const x=pos%3, y=Math.floor(pos/3);
 
-    div.style.backgroundImage = `url(${imagemAtual.img})`;
-    div.style.backgroundPosition = `-${x*100}px -${y*100}px`;
+    div.style.backgroundImage=`url(${imagemAtual.img})`;
+    div.style.backgroundPosition=`-${x*100}px -${y*100}px`;
 
-    div.draggable = true;
+    div.draggable=true;
 
-    div.ondragstart = e=>{
-      e.dataTransfer.setData("text", index);
+    div.ondragstart=e=>e.dataTransfer.setData("i",i);
+    div.ondrop=e=>{
+      const o=e.dataTransfer.getData("i");
+      [ordem[i],ordem[o]]=[ordem[o],ordem[i]];
+      criar();
+      verificar();
     };
-
-    div.ondragover = e=>e.preventDefault();
-
-    div.ondrop = e=>{
-      const origem = e.dataTransfer.getData("text");
-      trocar(origem, index);
-    };
+    div.ondragover=e=>e.preventDefault();
 
     tab.appendChild(div);
   });
-}
-
-function trocar(a,b){
-  [ordem[a], ordem[b]] = [ordem[b], ordem[a]];
-  criar();
-  verificar();
 }
 
 function embaralhar(){
@@ -216,60 +310,23 @@ function embaralhar(){
   criar();
 }
 
-/* FINAL DO PUZZLE */
 function verificar(){
-  let ok = true;
-  ordem.forEach((v,i)=>{
-    if(v !== i) ok = false;
-  });
-
-  if(ok){
-    document.body.classList.add("glitch");
-    setTimeout(()=>document.body.classList.remove("glitch"),200);
-
-    dinheiro += 200;
+  if(ordem.every((v,i)=>v===i)){
+    dinheiro+=200;
     atualizarCash();
-
-    let raridade = sortearRaridade();
-
-    let item = {
-      nome: imagemAtual.nome,
-      img: imagemAtual.img,
-      raridade: raridade
-    };
-
-    inventario.push(item);
-
-    salvar();
-    renderInventario();
-
-    alert("🔥 GANHOU: " + item.nome + " [" + raridade.toUpperCase() + "]");
-  }
-}
-
-/* CAIXA */
-function comprarCaixa(){
-  if(dinheiro >= 500){
-    dinheiro -= 500;
-    imagemAtual = skinsCS[Math.floor(Math.random()*skinsCS.length)];
-    iniciar();
-    atualizarCash();
-  } else {
-    alert("Sem dinheiro!");
+    alert("✔ Puzzle completo +$200");
   }
 }
 
 function iniciar(){
-  ordem = [];
-  for(let i=0;i<9;i++){
-    ordem.push(i);
-  }
+  ordem=[0,1,2,3,4,5,6,7,8];
   embaralhar();
 }
 
 /* START */
 atualizarCash();
 renderInventario();
+renderMarket();
 iniciar();
 
 </script>
