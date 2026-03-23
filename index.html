@@ -2,15 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>ULi6 CS Puzzle PRO+</title>
+<title>ULi6 CS Puzzle ONLINE</title>
 
 <style>
-body {
-  margin:0;
-  font-family:Arial;
-  background:#020617;
-  color:#fff;
-}
+body { margin:0; font-family:Arial; background:#020617; color:#fff; }
 
 header {
   display:flex;
@@ -21,72 +16,26 @@ header {
 
 .container {
   display:grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns:1fr 2fr 1fr;
   gap:15px;
   padding:15px;
 }
 
-.card {
-  background:#0f172a;
-  padding:10px;
-  border-radius:10px;
-}
+.card { background:#0f172a; padding:10px; border-radius:10px; }
 
-/* INVENTARIO */
-.item {
-  padding:8px;
-  margin:5px 0;
-  cursor:pointer;
-}
-
-/* PUZZLE */
 .tabuleiro {
   width:300px;
   height:300px;
   margin:auto;
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:2px;
 }
 
 .peca {
   background-size:300px 300px;
   border:1px solid #22c55e;
-  cursor:grab;
 }
 
-/* CAIXA */
-.case-container {
-  overflow:hidden;
-  width:100%;
-  border:2px solid #22c55e;
-  height:100px;
-  position:relative;
-}
-
-.case-track {
-  display:flex;
-  transition:3s cubic-bezier(0.1,0.7,0.1,1);
-}
-
-.case-item {
-  width:100px;
-  height:100px;
-  background-size:cover;
-  border-right:2px solid #020617;
-}
-
-/* PREVIEW */
-.preview {
-  text-align:center;
-  margin-top:10px;
-}
-.preview img {
-  width:200px;
-  border:3px solid gold;
-}
-
-/* BOTÃO */
 button {
   padding:10px;
   width:100%;
@@ -96,210 +45,141 @@ button {
   border-radius:8px;
   cursor:pointer;
 }
-
 </style>
 </head>
 
 <body>
 
 <header>
-  <div id="user"></div>
-  <div id="cash"></div>
+  <div id="user">Não logado</div>
+  <div id="cash">💰 $0</div>
 </header>
+
+<div style="padding:10px;">
+  <input id="email" placeholder="email">
+  <input id="senha" type="password" placeholder="senha">
+  <button onclick="registrar()">Criar Conta</button>
+  <button onclick="logar()">Entrar</button>
+</div>
 
 <div class="container">
 
-  <!-- INVENTARIO -->
   <div class="card">
     <h3>🎒 Inventário</h3>
     <div id="inv"></div>
   </div>
 
-  <!-- PUZZLE -->
   <div class="card">
     <div class="tabuleiro" id="tabuleiro"></div>
     <button onclick="embaralhar()">🔀 Embaralhar</button>
-
-    <!-- PREVIEW -->
-    <div class="preview" id="preview"></div>
   </div>
 
-  <!-- LOJA -->
   <div class="card">
-    <h3>🎁 Caixa</h3>
-
-    <div class="case-container">
-      <div class="case-track" id="caseTrack"></div>
-    </div>
-
-    <button onclick="abrirCaixa()">ABRIR CAIXA ($500)</button>
-
-    <h3>💸 Marketplace</h3>
-    <div id="market"></div>
+    <h3>🏆 Ranking Global</h3>
+    <div id="rank"></div>
   </div>
 
 </div>
 
-<audio id="caseSound" src="https://www.myinstants.com/media/sounds/csgo-case.mp3"></audio>
+<script type="module">
 
-<script>
+/* FIREBASE */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB4Sz7q23JSoiTZdY56NQAbzrC0_frElck",
+  authDomain: "quebra-cabeca-cbd1c.firebaseapp.com",
+  projectId: "quebra-cabeca-cbd1c",
+  storageBucket: "quebra-cabeca-cbd1c.firebasestorage.app",
+  messagingSenderId: "264564370309",
+  appId: "1:264564370309:web:addf6bab6948c2493cf2ec"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* LOGIN */
-let usuario = localStorage.getItem("user") || prompt("Seu nome:");
-localStorage.setItem("user", usuario);
-document.getElementById("user").innerText = "👤 " + usuario;
+window.registrar = ()=>{
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
 
-/* CASH */
-let dinheiro = parseInt(localStorage.getItem("cash")) || 1000;
-function atualizarCash(){
-  document.getElementById("cash").innerText = "💰 $" + dinheiro;
+  createUserWithEmailAndPassword(auth, email, senha)
+    .then(()=>alert("Conta criada!"))
+    .catch(e=>alert(e.message));
+};
+
+window.logar = ()=>{
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  signInWithEmailAndPassword(auth, email, senha)
+    .then(user=>{
+      document.getElementById("user").innerText = "👤 " + user.user.email;
+      carregarRanking();
+    })
+    .catch(e=>alert(e.message));
+};
+
+/* RANKING */
+async function salvarScore(score){
+  await addDoc(collection(db, "ranking"), {
+    nome: auth.currentUser.email,
+    score: score
+  });
 }
 
-/* RARIDADE */
-const raridades = [
-  {nome:"Comum", cor:"#9ca3af", chance:60},
-  {nome:"Raro", cor:"#3b82f6", chance:25},
-  {nome:"Épico", cor:"#a855f7", chance:10},
-  {nome:"Lendário", cor:"#facc15", chance:5}
-];
+async function carregarRanking(){
+  const q = query(collection(db, "ranking"), orderBy("score","desc"), limit(10));
+  const querySnapshot = await getDocs(q);
 
-/* SKINS */
+  const div = document.getElementById("rank");
+  div.innerHTML = "";
+
+  querySnapshot.forEach(doc=>{
+    const d = doc.data();
+    div.innerHTML += `<div>${d.nome} - $${d.score}</div>`;
+  });
+}
+
+/* JOGO */
+let dinheiro = 0;
 const skins = [
   {nome:"AK-47 Redline", img:"https://i.imgur.com/6QKQ8XH.jpg"},
-  {nome:"AWP Dragon Lore", img:"https://i.imgur.com/1n9Z1ZQ.jpg"},
-  {nome:"M4A4 Howl", img:"https://i.imgur.com/Y5q9ZQh.jpg"},
-  {nome:"Desert Eagle Blaze", img:"https://i.imgur.com/2w7sZ9k.jpg"}
+  {nome:"AWP Dragon Lore", img:"https://i.imgur.com/1n9Z1ZQ.jpg"}
 ];
 
-let inventario = JSON.parse(localStorage.getItem("inv")) || [];
-
-/* SORTEAR RARIDADE */
-function sortearRaridade(){
-  let rand = Math.random()*100, soma=0;
-  for(let r of raridades){
-    soma += r.chance;
-    if(rand <= soma) return r;
-  }
-}
-
-/* INVENTARIO */
-function renderInventario(){
-  const div = document.getElementById("inv");
-  div.innerHTML = "";
-
-  inventario.forEach((item,i)=>{
-    const el = document.createElement("div");
-    el.className = "item";
-    el.style.border = "2px solid "+item.raridade.cor;
-    el.innerText = item.nome + " ("+item.raridade.nome+")";
-
-    el.onclick = ()=>{
-      document.getElementById("preview").innerHTML =
-        `<img src="${item.img}"><br>${item.nome}`;
-    };
-
-    div.appendChild(el);
-  });
-}
-
-/* MARKET */
-function renderMarket(){
-  const div = document.getElementById("market");
-  div.innerHTML = "";
-
-  inventario.forEach((item,i)=>{
-    const btn = document.createElement("button");
-    btn.innerText = "Vender "+item.nome+" ($300)";
-    btn.onclick = ()=>{
-      inventario.splice(i,1);
-      dinheiro += 300;
-      salvar();
-      atualizarCash();
-      renderInventario();
-      renderMarket();
-    };
-    div.appendChild(btn);
-  });
-}
-
-/* SALVAR */
-function salvar(){
-  localStorage.setItem("inv", JSON.stringify(inventario));
-  localStorage.setItem("cash", dinheiro);
-}
-
-/* CAIXA ANIMAÇÃO */
-function abrirCaixa(){
-  if(dinheiro < 500) return alert("Sem dinheiro!");
-
-  dinheiro -= 500;
-  atualizarCash();
-
-  const track = document.getElementById("caseTrack");
-  track.innerHTML = "";
-
-  let resultado;
-
-  for(let i=0;i<30;i++){
-    const skin = skins[Math.floor(Math.random()*skins.length)];
-    const div = document.createElement("div");
-    div.className = "case-item";
-    div.style.backgroundImage = `url(${skin.img})`;
-    track.appendChild(div);
-
-    if(i === 25) resultado = skin;
-  }
-
-  document.getElementById("caseSound").play();
-
-  setTimeout(()=>{
-    track.style.transform = "translateX(-2500px)";
-  },100);
-
-  setTimeout(()=>{
-    const raridade = sortearRaridade();
-
-    inventario.push({
-      nome:resultado.nome,
-      img:resultado.img,
-      raridade:raridade
-    });
-
-    salvar();
-    renderInventario();
-    renderMarket();
-
-    alert("🔥 GANHOU: "+resultado.nome+" ["+raridade.nome+"]");
-
-  },3200);
-}
-
-/* PUZZLE */
-let ordem = [], tamanho=3, imagemAtual=skins[0];
+let imagemAtual = skins[0];
+let ordem = [];
 
 function criar(){
   const tab = document.getElementById("tabuleiro");
   tab.innerHTML="";
 
   ordem.forEach((pos,i)=>{
-    const div=document.createElement("div");
+    const div = document.createElement("div");
     div.className="peca";
 
-    const x=pos%3, y=Math.floor(pos/3);
+    const x = pos%3;
+    const y = Math.floor(pos/3);
 
-    div.style.backgroundImage=`url(${imagemAtual.img})`;
-    div.style.backgroundPosition=`-${x*100}px -${y*100}px`;
+    div.style.backgroundImage = `url(${imagemAtual.img})`;
+    div.style.backgroundPosition = `-${x*100}px -${y*100}px`;
 
-    div.draggable=true;
+    div.draggable = true;
 
-    div.ondragstart=e=>e.dataTransfer.setData("i",i);
-    div.ondrop=e=>{
-      const o=e.dataTransfer.getData("i");
-      [ordem[i],ordem[o]]=[ordem[o],ordem[i]];
+    div.ondragstart = e=>e.dataTransfer.setData("i", i);
+
+    div.ondrop = e=>{
+      const o = e.dataTransfer.getData("i");
+      [ordem[i], ordem[o]] = [ordem[o], ordem[i]];
       criar();
       verificar();
     };
-    div.ondragover=e=>e.preventDefault();
+
+    div.ondragover = e=>e.preventDefault();
 
     tab.appendChild(div);
   });
@@ -312,21 +192,22 @@ function embaralhar(){
 
 function verificar(){
   if(ordem.every((v,i)=>v===i)){
-    dinheiro+=200;
-    atualizarCash();
-    alert("✔ Puzzle completo +$200");
+    dinheiro += 200;
+    document.getElementById("cash").innerText = "💰 $" + dinheiro;
+
+    salvarScore(dinheiro);
+    carregarRanking();
+
+    alert("🔥 Puzzle completo!");
   }
 }
 
 function iniciar(){
-  ordem=[0,1,2,3,4,5,6,7,8];
+  ordem = [0,1,2,3,4,5,6,7,8];
   embaralhar();
 }
 
 /* START */
-atualizarCash();
-renderInventario();
-renderMarket();
 iniciar();
 
 </script>
