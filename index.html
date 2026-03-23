@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>ULi6 Puzzle PRO</title>
+<title>ULi6 Puzzle PRO MAX</title>
 
 <style>
 body {
@@ -13,35 +13,29 @@ body {
 }
 
 header {
-  padding:20px;
-  text-align:center;
+  display:flex;
+  justify-content:space-between;
+  padding:15px;
   border-bottom:2px solid #22c55e;
 }
 
 .container {
   display:grid;
-  grid-template-columns: 1fr 2fr;
-  gap:20px;
-  padding:20px;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap:15px;
+  padding:15px;
 }
 
-/* INVENTÁRIO */
-.inventario {
+.card {
   background:#0f172a;
-  padding:15px;
+  padding:10px;
   border-radius:10px;
 }
 
+/* INVENTARIO */
 .item {
-  padding:10px;
-  border:1px solid #22c55e;
-  margin-bottom:10px;
-  cursor:pointer;
-  transition:0.2s;
-}
-
-.item:hover {
-  background:#14532d;
+  padding:8px;
+  margin:5px 0;
 }
 
 /* PUZZLE */
@@ -50,23 +44,21 @@ header {
   height:300px;
   margin:auto;
   display:grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns:repeat(3,1fr);
   gap:2px;
 }
 
 .peca {
-  width:100%;
-  height:100%;
   background-size:300px 300px;
   border:1px solid #22c55e;
   cursor:grab;
 }
 
-/* BOTÕES */
+/* BOTÃO */
 button {
-  margin-top:15px;
   padding:10px;
   width:100%;
+  margin-top:10px;
   background:#22c55e;
   border:none;
   border-radius:8px;
@@ -77,11 +69,10 @@ button {
 .glitch {
   animation: glitch 0.2s;
 }
-
 @keyframes glitch {
-  0% { transform:translate(2px,-2px); }
-  50% { transform:translate(-2px,2px); }
-  100% { transform:translate(0,0); }
+  0%{transform:translate(2px,-2px);}
+  50%{transform:translate(-2px,2px);}
+  100%{transform:translate(0,0);}
 }
 </style>
 </head>
@@ -89,21 +80,31 @@ button {
 <body>
 
 <header>
-  <h1>🧩 ULi6 Puzzle PRO</h1>
+  <div id="user"></div>
+  <div id="cash"></div>
 </header>
 
 <div class="container">
 
-  <!-- INVENTÁRIO -->
-  <div class="inventario">
+  <!-- INVENTARIO -->
+  <div class="card">
     <h3>🎒 Inventário</h3>
-    <div id="itens"></div>
+    <div id="inv"></div>
   </div>
 
-  <!-- JOGO -->
-  <div>
+  <!-- PUZZLE -->
+  <div class="card">
     <div class="tabuleiro" id="tabuleiro"></div>
     <button onclick="embaralhar()">🔀 Embaralhar</button>
+  </div>
+
+  <!-- LOJA -->
+  <div class="card">
+    <h3>🛒 Loja</h3>
+    <button onclick="comprarCaixa()">🎁 Caixa ($500)</button>
+
+    <h3>🏆 Ranking</h3>
+    <div id="rank"></div>
   </div>
 
 </div>
@@ -111,29 +112,45 @@ button {
 <audio id="winSound" src="https://www.myinstants.com/media/sounds/win.mp3"></audio>
 
 <script>
-const imagens = [
-  {nome:"Skin Vermelha", url:"https://picsum.photos/id/1011/300"},
-  {nome:"Skin Azul", url:"https://picsum.photos/id/1025/300"},
-  {nome:"Skin Dourada", url:"https://picsum.photos/id/1005/300"}
+/* LOGIN */
+let usuario = localStorage.getItem("user");
+if(!usuario){
+  usuario = prompt("Digite seu nome:");
+  localStorage.setItem("user", usuario);
+}
+document.getElementById("user").innerText = "👤 " + usuario;
+
+/* CASH */
+let dinheiro = parseInt(localStorage.getItem("cash")) || 1000;
+function atualizarCash(){
+  document.getElementById("cash").innerText = "💰 $" + dinheiro;
+}
+
+/* SKINS */
+const skins = [
+  {nome:"Comum", cor:"#9ca3af", chance:60, img:"https://picsum.photos/id/1011/300"},
+  {nome:"Raro", cor:"#3b82f6", chance:25, img:"https://picsum.photos/id/1025/300"},
+  {nome:"Épico", cor:"#a855f7", chance:10, img:"https://picsum.photos/id/1005/300"},
+  {nome:"Lendário", cor:"#facc15", chance:5, img:"https://picsum.photos/id/1040/300"}
 ];
 
+/* INVENTARIO */
 let inventario = JSON.parse(localStorage.getItem("inv")) || [];
-let ordem = [];
-let imagemAtual = imagens[0];
-const tamanho = 3;
 
 function salvar(){
   localStorage.setItem("inv", JSON.stringify(inventario));
+  localStorage.setItem("cash", dinheiro);
 }
 
-function atualizarInventario(){
-  const div = document.getElementById("itens");
+function renderInventario(){
+  const div = document.getElementById("inv");
   div.innerHTML = "";
 
   inventario.forEach(item=>{
     const el = document.createElement("div");
     el.className = "item";
     el.innerText = item.nome;
+    el.style.border = "2px solid " + item.cor;
     el.onclick = ()=>{
       imagemAtual = item;
       iniciar();
@@ -141,6 +158,63 @@ function atualizarInventario(){
     div.appendChild(el);
   });
 }
+
+/* LOOT BOX */
+function abrirCaixa(){
+  let rand = Math.random()*100;
+  let soma = 0;
+
+  for(let skin of skins){
+    soma += skin.chance;
+    if(rand <= soma){
+      ganharSkin(skin);
+      return;
+    }
+  }
+}
+
+function ganharSkin(skin){
+  inventario.push(skin);
+  salvar();
+  renderInventario();
+  alert("🔥 GANHOU: " + skin.nome);
+}
+
+/* LOJA */
+function comprarCaixa(){
+  if(dinheiro >= 500){
+    dinheiro -= 500;
+    abrirCaixa();
+    atualizarCash();
+    salvar();
+  } else {
+    alert("Sem dinheiro!");
+  }
+}
+
+/* RANKING */
+let ranking = JSON.parse(localStorage.getItem("rank")) || [];
+
+function salvarRanking(){
+  ranking.push({nome:usuario, score:dinheiro});
+  ranking.sort((a,b)=>b.score-a.score);
+  localStorage.setItem("rank", JSON.stringify(ranking));
+}
+
+function renderRanking(){
+  const div = document.getElementById("rank");
+  div.innerHTML = "";
+  ranking.slice(0,5).forEach(r=>{
+    const el = document.createElement("div");
+    el.innerText = r.nome + " - $" + r.score;
+    div.appendChild(el);
+  });
+}
+
+/* PUZZLE */
+let ordem = [];
+let imagemAtual = skins[0];
+const tamanho = 3;
 
 function criar(){
   const tab = document.getElementById("tabuleiro");
@@ -153,7 +227,7 @@ function criar(){
     const x = pos % tamanho;
     const y = Math.floor(pos / tamanho);
 
-    div.style.backgroundImage = `url(${imagemAtual.url})`;
+    div.style.backgroundImage = `url(${imagemAtual.img})`;
     div.style.backgroundPosition = `-${x*100}px -${y*100}px`;
 
     div.draggable = true;
@@ -192,23 +266,17 @@ function verificar(){
 
   if(ok){
     document.body.classList.add("glitch");
-
-    setTimeout(()=>{
-      document.body.classList.remove("glitch");
-    },200);
+    setTimeout(()=>document.body.classList.remove("glitch"),200);
 
     document.getElementById("winSound").play();
 
-    const recompensa = imagens[Math.floor(Math.random()*imagens.length)];
+    dinheiro += 200;
+    atualizarCash();
 
-    if(!inventario.find(i=>i.nome === recompensa.nome)){
-      inventario.push(recompensa);
-      salvar();
-      atualizarInventario();
-      alert("🔥 NOVO ITEM DESBLOQUEADO: " + recompensa.nome);
-    } else {
-      alert("✔ Puzzle completo!");
-    }
+    salvarRanking();
+    renderRanking();
+
+    alert("🔥 Puzzle completo! +$200");
   }
 }
 
@@ -220,7 +288,10 @@ function iniciar(){
   embaralhar();
 }
 
-atualizarInventario();
+/* START */
+atualizarCash();
+renderInventario();
+renderRanking();
 iniciar();
 </script>
 
