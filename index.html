@@ -2,368 +2,124 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Calculadora Penal - Alvorada City</title>
-
-<link rel="icon" type="image/png" href="favicon2.png">
+<title>ULi6 Puzzle Colecionável</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #0f172a;
-  color: #fff;
-  margin: 0;
+  margin:0;
+  background:#020617;
+  color:#fff;
+  font-family:Arial;
+  text-align:center;
 }
 
-header {
-  background: #020617;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 2px solid #22c55e;
+h1 {
+  color:#22c55e;
+  margin-top:20px;
 }
 
-.container {
-  padding: 20px;
+.tabuleiro {
+  width:300px;
+  height:300px;
+  margin:30px auto;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:2px;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  grid-template-rows: auto auto auto;
-  gap: 20px;
-}
-
-/* DIVERSOS */
-.grid > .card:nth-child(4) {
-  grid-column: 1;
-  grid-row: 1 / 3;
-}
-
-/* PATRIMÔNIO */
-.grid > .card:nth-child(3) {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-/* ADMINISTRAÇÃO */
-.grid > .card:nth-child(1) {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-/* VIDA (embaixo centralizado) */
-.grid > .card:nth-child(2) {
-  grid-column: 1 / 3;
-  grid-row: 3;
-}
-
-.card {
-  background: #020617;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(34,197,94,0.2);
-}
-
-.card h3 {
-  text-align: center;
-  color: #22c55e;
-  margin-bottom: 10px;
-}
-
-.crime {
-  display: flex;
-  justify-content: space-between;
-  background: #1e293b;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-.crime:has(input:checked) {
-  background: #14532d;
-  border: 1px solid #22c55e;
-}
-
-.crime:hover {
-  background: #334155;
-}
-
-input {
-  border-radius: 6px;
-  border: none;
+.peca {
+  width:100%;
+  height:100%;
+  background-image:url('https://picsum.photos/300'); /* TROCA AQUI */
+  background-size:300px 300px;
+  border:1px solid #22c55e;
+  cursor:pointer;
 }
 
 button {
-  background: #22c55e;
-  border: none;
-  padding: 10px 15px;
-  color: #000;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.resultado {
-  margin-top: 20px;
-  background: #020617;
-  padding: 15px;
-  border-radius: 10px;
-}
-
-textarea {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  height: 150px;
-  resize: none;
-  border-radius: 6px;
-  border: none;
-}
-
-#lista-crimes {
-  background: #020617;
-  border: 1px solid #22c55e;
-  border-radius: 10px;
-  padding: 10px;
-  min-height: 120px;
-  margin-top: 10px;
-  margin-bottom: 15px;
+  padding:10px 20px;
+  background:#22c55e;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1 style="color:#22c55e; text-shadow:0 0 10px #22c55e;">
-    Calculadora Penal - Alvorada City
-  </h1>
+<h1>🧩 ULi6 Colecionáveis</h1>
 
-  <img src="logo.png" style="
-  max-width:320px;
-  filter: drop-shadow(0 0 15px #22c55e);
-  transition: 0.3s;
-"
-onmouseover="this.style.transform='scale(1.05)'"
-onmouseout="this.style.transform='scale(1)'"> 
+<div class="tabuleiro" id="tabuleiro"></div>
 
-  <p style="font-size:12px; color:#94a3b8;">
-    Sistema MDT • Polícia RP
-  </p>
-</header>
-
-<div class="container">
-
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-
-  <h2 style="margin:0;">Selecione os crimes:</h2>
-
-  <div style="display:flex; gap:10px;">
-    <input id="nome" placeholder="Nome do preso" style="padding:6px; width:250px;">
-    <input id="rg" placeholder="RG" style="padding:6px; width:120px;">
-  </div>
-
-</div>
-
-<div id="crimes" class="grid"></div>
-
-<button onclick="calcular()">Calcular Pena</button>
-<button onclick="copiarPrisao()" style="margin-left:10px;">Copiar Prisão</button>
-
-<h3 style="margin-top:20px;">CRIMES (ARTIGOS SELECIONADOS):</h3>
-<div id="lista-crimes"></div>
-
-<div class="resultado" id="resultado">
-  <p>Tempo: 0 meses</p>
-  <p>Multa: R$ 0</p>
-</div>
-
-</div>
+<button onclick="embaralhar()">Embaralhar</button>
 
 <script>
-const categorias = [
-{
-titulo: "CRIMES CONTRA A ADMINISTRAÇÃO",
-crimes: [
-{nome: "Falsa comunicação de crime", tempo: 10, multa: 1500},
-{nome: "Desobediência", tempo: 3, multa: 1000},
-{nome: "Desacato", tempo: 3, multa: 1000},
-{nome: "Resistência a prisão", tempo: 15, multa: 3000},
-{nome: "Obstrução da justiça", tempo: 5, multa: 1000},
-{nome: "Falso testemunho", tempo: 15, multa: 5000},
-{nome: "Perjúrio", tempo: 5, multa: 1000},
-{nome: "Quebra de sigilo administrativo", tempo: 30, multa: 25000},
-{nome: "Quebra de contrato administrativo", tempo: 30, multa: 10000},
-{nome: "Incitação ao crime", tempo: 5, multa: 2000},
-{nome: "Suborno", tempo: 35, multa: 15000},
-{nome: "Falsificação ideológica", tempo: 3, multa: 500}
-]
-},
-{
-titulo: "CRIMES CONTRA A VIDA",
-crimes: [
-{nome: "Tentativa de homicídio", tempo: 5, multa: 2000},
-{nome: "Homicídio culposo", tempo: 3, multa: 1000},
-{nome: "Homicídio qualificado", tempo: 10, multa: 2000},
-{nome: "Homicídio doloso", tempo: 10, multa: 2500},
-{nome: "Sequestro", tempo: 10, multa: 2000},
-{nome: "Lesão corporal", tempo: 3, multa: 500},
-{nome: "Maria da penha", tempo: 10, multa: 1000}
-]
-},
-{
-titulo: "CRIMES CONTRA O PATRIMÔNIO",
-crimes: [
-{nome: "Roubo a viatura", tempo: 10, multa: 10000},
-{nome: "Invasão de propriedade", tempo: 5, multa: 1000},
-{nome: "Roubo a propriedade", tempo: 5, multa: 1000},
-{nome: "Dano a patrimônio público e privado", tempo: 5, multa: 500},
-{nome: "Extorsão", tempo: 100, multa: 0},
-{nome: "Furto", tempo: 5, multa: 500},
-{nome: "Roubo a ATM", tempo: 10, multa: 2000},
-{nome: "Roubo a caixa registradora", tempo: 5, multa: 1000},
-{nome: "Roubo de pertences", tempo: 3, multa: 500},
-{nome: "Roubo de carro", tempo: 5, multa: 2000},
-{nome: "Roubo a Ammunation", tempo: 10, multa: 2000},
-{nome: "Roubo a Barbearia", tempo: 10, multa: 2000},
-{nome: "Roubo a Loja", tempo: 10, multa: 2000},
-{nome: "Roubo Banco Central", tempo: 30, multa: 5000},
-{nome: "Roubo Banco Paleto", tempo: 30, multa: 5000},
-{nome: "Roubo Fleeca", tempo: 30, multa: 5000},
-{nome: "Roubo a Joalheria", tempo: 10, multa: 2000}
-]
-},
-{
-titulo: "CRIMES DIVERSOS",
-crimes: [
-{nome: "Ocultação facial", tempo: 5, multa: 500},
-{nome: "Vandalismo", tempo: 5, multa: 1000},
-{nome: "Tentativa de fuga", tempo: 10, multa: 2000},
-{nome: "Calúnia e difamação", tempo: 5, multa: 1500},
-{nome: "Assédio moral", tempo: 5, multa: 1000},
-{nome: "Omissão de socorro", tempo: 5, multa: 1000},
-{nome: "Ameaça por autoridade", tempo: 40, multa: 30000},
-{nome: "Estelionato", tempo: 35, multa: 10000},
-{nome: "Formação de quadrilha", tempo: 5, multa: 1000},
-{nome: "Contrabando", tempo: 5, multa: 1000},
-{nome: "Posse de material ilícito", tempo: 15, multa: 8000},
-{nome: "Tráfico de drogas", tempo: 8, multa: 1500},
-{nome: "Posse de dinheiro sujo", tempo: 3, multa: 500},
-{nome: "Tráfico de armas leves", tempo: 10, multa: 2000},
-{nome: "Tráfico de armas médias", tempo: 15, multa: 4000},
-{nome: "Tráfico de armas pesadas", tempo: 20, multa: 10000},
-{nome: "Ameaça", tempo: 3, multa: 500},
-{nome: "Porte de armas leves", tempo: 5, multa: 200},
-{nome: "Porte de armas médias", tempo: 8, multa: 4000},
-{nome: "Porte de armas pesadas", tempo: 15, multa: 10000},
-{nome: "Munição leve", tempo: 3, multa: 1000},
-{nome: "Munição média", tempo: 5, multa: 2000},
-{nome: "Munição pesada", tempo: 8, multa: 4000},
-{nome: "Tráfico munição leve", tempo: 5, multa: 2000},
-{nome: "Tráfico munição média", tempo: 8, multa: 4000},
-{nome: "Tráfico munição pesada", tempo: 12, multa: 5000},
-{nome: "Corrida ilegal", tempo: 10, multa: 2000},
-{nome: "Invasão departamento policial", tempo: 20, multa: 5000},
-{nome: "Abandono de veículo", tempo: 1, multa: 1000},
-{nome: "Roubo mergulhador", tempo: 10, multa: 3000},
-{nome: "Aeronave sem rádio", tempo: 1, multa: 15000},
-{nome: "Aeronave danificada", tempo: 1, multa: 15000}
-]
-}
-];
+const tamanho = 3;
+let ordem = [];
 
-const container = document.getElementById("crimes");
+function criar(){
+  const tabuleiro = document.getElementById("tabuleiro");
+  tabuleiro.innerHTML = "";
 
-categorias.forEach((cat, catIndex) => {
-  const card = document.createElement("div");
-  card.className = "card";
-
-  const titulo = document.createElement("h3");
-  titulo.textContent = cat.titulo;
-  card.appendChild(titulo);
-
-  cat.crimes.forEach((c, crimeIndex) => {
-    const numero = (catIndex + 1) + '.' + (crimeIndex + 1);
-
+  ordem.forEach((pos, index)=>{
     const div = document.createElement("div");
-    div.className = "crime";
+    div.className = "peca";
 
-    div.innerHTML =
-      '<span>' + numero + ' - ' + c.nome + '</span>' +
-      '<input type="checkbox" data-tempo="' + c.tempo + '" data-multa="' + c.multa + '" onchange="atualizarTempoReal()">';
+    const x = pos % tamanho;
+    const y = Math.floor(pos / tamanho);
 
-    card.appendChild(div);
-  });
+    div.style.backgroundPosition = `-${x*100}px -${y*100}px`;
 
-  container.appendChild(card);
-});
+    div.draggable = true;
 
-let crimesSelecionados = [];
+    div.ondragstart = (e)=>{
+      e.dataTransfer.setData("text", index);
+    };
 
-function atualizarTempoReal() {
-  let tempo = 0;
-  let multa = 0;
-  crimesSelecionados = [];
+    div.ondragover = (e)=> e.preventDefault();
 
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.tempo);
-    multa += parseInt(el.dataset.multa);
+    div.ondrop = (e)=>{
+      const origem = e.dataTransfer.getData("text");
+      trocar(origem, index);
+    };
 
-    const nomeCrime = el.parentElement.querySelector('span').innerText;
-    crimesSelecionados.push(nomeCrime);
-  });
-
-  document.getElementById('lista-crimes').innerHTML =
-    crimesSelecionados.map(c => "• " + c).join("<br>");
-
-  document.getElementById('resultado').innerHTML =
-    '<p>Tempo: ' + tempo + ' meses</p>' +
-    '<p>Multa: R$ ' + multa.toLocaleString() + '</p>';
-}
-
-function calcular() {
-  atualizarTempoReal();
-}
-
-function copiarPrisao() {
-  calcular();
-
-  const nome = document.getElementById('nome').value.trim() || 'N/A';
-  const rg = document.getElementById('rg').value.trim() || 'N/A';
-  const data = new Date().toLocaleDateString('pt-BR');
-
-  let tempo = 0;
-  let multa = 0;
-
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach(el => {
-    tempo += parseInt(el.dataset.tempo);
-    multa += parseInt(el.dataset.multa);
-  });
-
-  const listaCrimes = crimesSelecionados.map(c => '- ' + c).join('\n');
-
-  const texto =
-'```md\n\n' +
-'# INFORMAÇÕES DO PRESO:\n' +
-'* NOME: ' + nome + '\n' +
-'* RG: ' + rg + '\n\n' +
-'# PENA TOTAL: ' + tempo + ' meses\n' +
-'# MULTA: R$' + multa.toLocaleString() + '\n\n' +
-'# CRIMES:\n' +
-listaCrimes + '\n\n' +
-'# DATA: ' + data + '\n\n```';
-
-  navigator.clipboard.writeText(texto).then(() => {
-    alert('Prisão copiada!');
+    tabuleiro.appendChild(div);
   });
 }
+
+function trocar(a,b){
+  [ordem[a], ordem[b]] = [ordem[b], ordem[a]];
+  criar();
+  verificar();
+}
+
+function embaralhar(){
+  ordem.sort(()=>Math.random()-0.5);
+  criar();
+}
+
+function verificar(){
+  let correto = true;
+  ordem.forEach((v,i)=>{
+    if(v !== i) correto = false;
+  });
+
+  if(correto){
+    setTimeout(()=>alert("🔥 COMPLETOU O COLECIONÁVEL! 🔥"),100);
+  }
+}
+
+function iniciar(){
+  ordem = [];
+  for(let i=0;i<tamanho*tamanho;i++){
+    ordem.push(i);
+  }
+  embaralhar();
+}
+
+iniciar();
 </script>
 
-<footer class="footer">
-  <p>⚖️ Calculadora Penal • Alvorada City</p>
-  <p>👮 Sistema MDT Policial RP</p>
-  <p style="font-size:12px; color:#64748b;">© 2026 Todos os direitos reservados</p>
-</footer>
 </body>
 </html>
