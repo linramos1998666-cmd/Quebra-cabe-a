@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>ULi6 Puzzle PRO MAX</title>
+<title>ULi6 CS Puzzle</title>
 
 <style>
 body {
@@ -32,13 +32,11 @@ header {
   border-radius:10px;
 }
 
-/* INVENTARIO */
 .item {
   padding:8px;
   margin:5px 0;
 }
 
-/* PUZZLE */
 .tabuleiro {
   width:300px;
   height:300px;
@@ -54,7 +52,6 @@ header {
   cursor:grab;
 }
 
-/* BOTÃO */
 button {
   padding:10px;
   width:100%;
@@ -65,7 +62,12 @@ button {
   cursor:pointer;
 }
 
-/* GLITCH */
+/* CORES RARIDADE */
+.comum { border:2px solid #9ca3af; }
+.raro { border:2px solid #3b82f6; }
+.epico { border:2px solid #a855f7; }
+.lendario { border:2px solid #facc15; }
+
 .glitch {
   animation: glitch 0.2s;
 }
@@ -86,32 +88,25 @@ button {
 
 <div class="container">
 
-  <!-- INVENTARIO -->
   <div class="card">
     <h3>🎒 Inventário</h3>
     <div id="inv"></div>
   </div>
 
-  <!-- PUZZLE -->
   <div class="card">
     <div class="tabuleiro" id="tabuleiro"></div>
     <button onclick="embaralhar()">🔀 Embaralhar</button>
   </div>
 
-  <!-- LOJA -->
   <div class="card">
     <h3>🛒 Loja</h3>
     <button onclick="comprarCaixa()">🎁 Caixa ($500)</button>
-
-    <h3>🏆 Ranking</h3>
-    <div id="rank"></div>
   </div>
 
 </div>
 
-<audio id="winSound" src="https://www.myinstants.com/media/sounds/win.mp3"></audio>
-
 <script>
+
 /* LOGIN */
 let usuario = localStorage.getItem("user");
 if(!usuario){
@@ -126,15 +121,22 @@ function atualizarCash(){
   document.getElementById("cash").innerText = "💰 $" + dinheiro;
 }
 
-/* SKINS */
-const skins = [
-  {nome:"Comum", cor:"#9ca3af", chance:60, img:"https://picsum.photos/id/1011/300"},
-  {nome:"Raro", cor:"#3b82f6", chance:25, img:"https://picsum.photos/id/1025/300"},
-  {nome:"Épico", cor:"#a855f7", chance:10, img:"https://picsum.photos/id/1005/300"},
-  {nome:"Lendário", cor:"#facc15", chance:5, img:"https://picsum.photos/id/1040/300"}
+/* RARIDADE */
+const raridades = [
+  {nome:"comum", chance:60},
+  {nome:"raro", chance:25},
+  {nome:"epico", chance:10},
+  {nome:"lendario", chance:5}
 ];
 
-/* INVENTARIO */
+/* SKINS CS (IMAGENS) */
+const skinsCS = [
+  {nome:"AK-47 Redline", img:"https://i.imgur.com/6QKQ8XH.jpg"},
+  {nome:"AWP Dragon Lore", img:"https://i.imgur.com/1n9Z1ZQ.jpg"},
+  {nome:"M4A4 Howl", img:"https://i.imgur.com/Y5q9ZQh.jpg"},
+  {nome:"Desert Eagle Blaze", img:"https://i.imgur.com/2w7sZ9k.jpg"}
+];
+
 let inventario = JSON.parse(localStorage.getItem("inv")) || [];
 
 function salvar(){
@@ -148,72 +150,28 @@ function renderInventario(){
 
   inventario.forEach(item=>{
     const el = document.createElement("div");
-    el.className = "item";
-    el.innerText = item.nome;
-    el.style.border = "2px solid " + item.cor;
-    el.onclick = ()=>{
-      imagemAtual = item;
-      iniciar();
-    };
+    el.className = "item " + item.raridade;
+    el.innerText = item.nome + " (" + item.raridade + ")";
     div.appendChild(el);
   });
 }
 
-/* LOOT BOX */
-function abrirCaixa(){
+/* SORTEAR RARIDADE */
+function sortearRaridade(){
   let rand = Math.random()*100;
   let soma = 0;
 
-  for(let skin of skins){
-    soma += skin.chance;
+  for(let r of raridades){
+    soma += r.chance;
     if(rand <= soma){
-      ganharSkin(skin);
-      return;
+      return r.nome;
     }
   }
 }
 
-function ganharSkin(skin){
-  inventario.push(skin);
-  salvar();
-  renderInventario();
-  alert("🔥 GANHOU: " + skin.nome);
-}
-
-/* LOJA */
-function comprarCaixa(){
-  if(dinheiro >= 500){
-    dinheiro -= 500;
-    abrirCaixa();
-    atualizarCash();
-    salvar();
-  } else {
-    alert("Sem dinheiro!");
-  }
-}
-
-/* RANKING */
-let ranking = JSON.parse(localStorage.getItem("rank")) || [];
-
-function salvarRanking(){
-  ranking.push({nome:usuario, score:dinheiro});
-  ranking.sort((a,b)=>b.score-a.score);
-  localStorage.setItem("rank", JSON.stringify(ranking));
-}
-
-function renderRanking(){
-  const div = document.getElementById("rank");
-  div.innerHTML = "";
-  ranking.slice(0,5).forEach(r=>{
-    const el = document.createElement("div");
-    el.innerText = r.nome + " - $" + r.score;
-    div.appendChild(el);
-  });
-}
-
 /* PUZZLE */
 let ordem = [];
-let imagemAtual = skins[0];
+let imagemAtual = skinsCS[0];
 const tamanho = 3;
 
 function criar(){
@@ -258,6 +216,7 @@ function embaralhar(){
   criar();
 }
 
+/* FINAL DO PUZZLE */
 function verificar(){
   let ok = true;
   ordem.forEach((v,i)=>{
@@ -268,15 +227,35 @@ function verificar(){
     document.body.classList.add("glitch");
     setTimeout(()=>document.body.classList.remove("glitch"),200);
 
-    document.getElementById("winSound").play();
-
     dinheiro += 200;
     atualizarCash();
 
-    salvarRanking();
-    renderRanking();
+    let raridade = sortearRaridade();
 
-    alert("🔥 Puzzle completo! +$200");
+    let item = {
+      nome: imagemAtual.nome,
+      img: imagemAtual.img,
+      raridade: raridade
+    };
+
+    inventario.push(item);
+
+    salvar();
+    renderInventario();
+
+    alert("🔥 GANHOU: " + item.nome + " [" + raridade.toUpperCase() + "]");
+  }
+}
+
+/* CAIXA */
+function comprarCaixa(){
+  if(dinheiro >= 500){
+    dinheiro -= 500;
+    imagemAtual = skinsCS[Math.floor(Math.random()*skinsCS.length)];
+    iniciar();
+    atualizarCash();
+  } else {
+    alert("Sem dinheiro!");
   }
 }
 
@@ -291,8 +270,8 @@ function iniciar(){
 /* START */
 atualizarCash();
 renderInventario();
-renderRanking();
 iniciar();
+
 </script>
 
 </body>
